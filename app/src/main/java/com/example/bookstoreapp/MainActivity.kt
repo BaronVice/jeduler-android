@@ -1,12 +1,8 @@
 package com.example.bookstoreapp
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.bookstoreapp.data.Book
 import com.example.bookstoreapp.data.Constants.*
-import com.example.bookstoreapp.data.ImageUtils
+import com.example.bookstoreapp.login.LoginScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -50,28 +46,29 @@ class MainActivity : ComponentActivity() {
         storage = Firebase.storage.reference.child( STORAGE_CHILD.s )
 
         setContent {
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia()
-            ) {
-                uri -> if (uri == null) return@rememberLauncherForActivityResult
-
-                val uploadImgTask = storage.child( "test_img" ).putBytes(
-                    ImageUtils.bitmapToByteArray(this, uri)
-                )
-                uploadImgTask.addOnSuccessListener {
-                    uploadTask -> uploadTask.metadata?.reference?.downloadUrl?.addOnCompleteListener {
-                        uriTask ->  Book.saveBook(fs, uriTask.result.toString())
-                    }
-                }
-            }
-
-            MainScreen(fs, storage){
-                launcher.launch(
-                    PickVisualMediaRequest(
-                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                    )
-                )
-            }
+            LoginScreen(LocalContext.current)
+//            val launcher = rememberLauncherForActivityResult(
+//                contract = ActivityResultContracts.PickVisualMedia()
+//            ) {
+//                uri -> if (uri == null) return@rememberLauncherForActivityResult
+//
+//                val uploadImgTask = storage.child( "test_img" ).putBytes(
+//                    ImageUtils.bitmapToByteArray(this, uri)
+//                )
+//                uploadImgTask.addOnSuccessListener {
+//                    uploadTask -> uploadTask.metadata?.reference?.downloadUrl?.addOnCompleteListener {
+//                        uriTask ->  Book.saveBook(fs, uriTask.result.toString())
+//                    }
+//                }
+//            }
+//
+//            MainScreen(fs, storage){
+//                launcher.launch(
+//                    PickVisualMediaRequest(
+//                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+//                    )
+//                )
+//            }
 
         }
     }
