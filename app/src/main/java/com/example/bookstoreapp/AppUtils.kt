@@ -1,4 +1,4 @@
-package com.example.bookstoreapp.login
+package com.example.bookstoreapp
 
 import android.content.Context
 import android.widget.Toast

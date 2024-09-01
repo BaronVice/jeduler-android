@@ -1,26 +1,61 @@
 package com.example.bookstoreapp.login
 
 import android.content.Context
+import androidx.compose.animation.Animatable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.bookstoreapp.R
+import com.example.bookstoreapp.ui.theme.LoginBoxFilter1
+import com.example.bookstoreapp.ui.theme.LoginBoxFilter2
+import com.example.bookstoreapp.ui.theme.LogoFilter1
+import com.example.bookstoreapp.ui.theme.LogoFilter2
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+
+// TODO: add buttons to change backgrounds
 @Composable
-fun LoginScreen(current: Context) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit
+) {
     val auth = Firebase.auth
+    val current = LocalContext.current
+
+    val animatedColorBg = remember { Animatable(LoginBoxFilter1) }
+    val animatedColorLogo = remember { Animatable(LogoFilter1) }
+    val bgLauncher = EffectsLauncher(
+        color1 = LoginBoxFilter2,
+        color2 = LoginBoxFilter1,
+        animated = animatedColorBg
+    )
+    bgLauncher.LaunchEffects()
+    val logoLauncher = EffectsLauncher(
+        color1 = LogoFilter2,
+        color2 = LogoFilter1,
+        animated = animatedColorLogo
+    )
+    logoLauncher.LaunchEffects()
 
     val emailState = remember {
         mutableStateOf("")
@@ -29,39 +64,62 @@ fun LoginScreen(current: Context) {
         mutableStateOf("")
     }
 
-    Column(
+    Image(
+        painter = painterResource(id = R.drawable.login_bg),
+        contentDescription = "LOGIN_BG",
         modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(animatedColorBg.value)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TextField(
-            value = emailState.value,
-            onValueChange = {
-                emailState.value = it
-            }
+        Image(
+            painter = painterResource(id = R.drawable.auth),
+            contentDescription = "LOGO",
+            modifier = Modifier.size(130.dp),
+            colorFilter = ColorFilter.tint(animatedColorLogo.value)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = passwordState.value,
-            onValueChange = {
-                passwordState.value = it
-            }
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Button(
-            onClick = {
-                AuthUtils.signIn(auth, emailState.value, passwordState.value, current)
-            }
-        ) {
-            Text(text = "Sign In")
+        // TODO: use some API to get fancy quote
+        Spacer(modifier = Modifier.height(30.dp))
+
+        RoundedCornerTextField(
+            text = emailState.value,
+            label = "Email"
+        ){
+            emailState.value = it
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Button(
-            onClick = {
-                AuthUtils.signUp(auth, emailState.value, passwordState.value, current)
+        RoundedCornerTextField(
+            text = passwordState.value,
+            label = "Password"
+        ){
+            passwordState.value = it
+        }
+        Spacer(modifier = Modifier.height(100.dp))
+
+        LoginButton(text = "Sign In") {
+            if (AuthUtils.signIn(auth, emailState.value, passwordState.value, current)){
+                onLoginSuccess()
             }
-        ) {
-            Text(text = "Sign Up")
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        LoginButton(text = "Sign Up") {
+            if (AuthUtils.signUp(auth, emailState.value, passwordState.value, current)){
+                onLoginSuccess()
+            }
         }
     }
 }
+

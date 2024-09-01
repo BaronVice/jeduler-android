@@ -1,7 +1,7 @@
 package com.example.bookstoreapp.login
 
 import android.content.Context
-import com.example.bookstoreapp.login.AppUtils.showToast
+import com.example.bookstoreapp.AppUtils.showToast
 import com.google.firebase.auth.FirebaseAuth
 
 object AuthUtils {
@@ -20,10 +20,11 @@ object AuthUtils {
         email: String,
         password: String,
         context: Context
-    ){
-        if (areCredentialsEmpty(email, password, context)) return
-        if (!isPasswordStrong(password, context)) return
+    ): Boolean {
+        if (areCredentialsEmpty(email, password, context)) return false
+        if (!isPasswordStrong(password, context)) return false
 
+        var isLoggedIn = true
         auth
             .createUserWithEmailAndPassword(
                 email,
@@ -38,8 +39,11 @@ object AuthUtils {
                     context,
                     it.message.toString()
                 )
+                isLoggedIn = false
 //                    updateUI(null)
             }
+
+        return isLoggedIn
     }
 
     fun signIn(
@@ -47,9 +51,10 @@ object AuthUtils {
         email: String,
         password: String,
         context: Context
-    ) {
-        if (areCredentialsEmpty(email, password, context)) return
+    ): Boolean {
+        if (areCredentialsEmpty(email, password, context)) return false
 
+        var isLoggedIn = true
         auth
             .signInWithEmailAndPassword(
                 email,
@@ -64,8 +69,11 @@ object AuthUtils {
                     context,
                     it.message.toString()
                 )
+                isLoggedIn = false
 //                    updateUI(null)
             }
+
+        return isLoggedIn
     }
 
 
