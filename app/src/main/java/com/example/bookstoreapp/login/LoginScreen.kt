@@ -1,6 +1,5 @@
 package com.example.bookstoreapp.login
 
-import android.content.Context
 import androidx.compose.animation.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,39 +21,36 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.bookstoreapp.R
 import com.example.bookstoreapp.ui.theme.LoginBoxFilter1
-import com.example.bookstoreapp.ui.theme.LoginBoxFilter2
 import com.example.bookstoreapp.ui.theme.LogoFilter1
 import com.example.bookstoreapp.ui.theme.LogoFilter2
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.StorageReference
 
 
 // TODO: add buttons to change backgrounds
 @Composable
 fun LoginScreen(
+    fs: FirebaseFirestore,
+    storage: StorageReference,
+    effectsViewModelBg: EffectsViewModel,
+    effectsViewModelLogo: EffectsViewModel,
     onLoginSuccess: () -> Unit
 ) {
     val auth = Firebase.auth
     val current = LocalContext.current
 
-    val animatedColorBg = remember { Animatable(LoginBoxFilter1) }
-    val animatedColorLogo = remember { Animatable(LogoFilter1) }
-    val bgLauncher = EffectsLauncher(
-        color1 = LoginBoxFilter2,
-        color2 = LoginBoxFilter1,
-        animated = animatedColorBg
-    )
-    bgLauncher.LaunchEffects()
-    val logoLauncher = EffectsLauncher(
-        color1 = LogoFilter2,
-        color2 = LogoFilter1,
-        animated = animatedColorLogo
-    )
-    logoLauncher.LaunchEffects()
+    effectsViewModelBg.LaunchEffects()
+    effectsViewModelLogo.LaunchEffects()
+
+    if (auth.currentUser != null){
+        onLoginSuccess()
+        return
+    }
 
     val emailState = remember {
         mutableStateOf("")
@@ -74,7 +69,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(animatedColorBg.value)
+            .background(effectsViewModelBg.value)
     )
 
     Column(
@@ -88,7 +83,7 @@ fun LoginScreen(
             painter = painterResource(id = R.drawable.auth),
             contentDescription = "LOGO",
             modifier = Modifier.size(130.dp),
-            colorFilter = ColorFilter.tint(animatedColorLogo.value)
+            colorFilter = ColorFilter.tint(effectsViewModelLogo.value)
         )
         Spacer(modifier = Modifier.height(10.dp))
         // TODO: use some API to get fancy quote
@@ -119,6 +114,7 @@ fun LoginScreen(
             if (AuthUtils.signUp(auth, emailState.value, passwordState.value, current)){
                 onLoginSuccess()
             }
+            effectsViewModelLogo.changeColors(Color.Red, Color.Green)
         }
     }
 }

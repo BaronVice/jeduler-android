@@ -37,8 +37,11 @@ import com.example.bookstoreapp.data.Book
 import com.example.bookstoreapp.data.Constants.*
 import com.example.bookstoreapp.home.Home
 import com.example.bookstoreapp.home.HomeScreen
+import com.example.bookstoreapp.login.EffectsViewModel
 import com.example.bookstoreapp.login.Login
 import com.example.bookstoreapp.login.LoginScreen
+import com.example.bookstoreapp.ui.theme.LogoFilter1
+import com.example.bookstoreapp.ui.theme.LogoFilter2
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -46,14 +49,22 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.delay
 
+
 class MainActivity : ComponentActivity() {
     private lateinit var fs: FirebaseFirestore
     private lateinit var storage: StorageReference
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         fs = Firebase.firestore
         storage = Firebase.storage.reference.child( STORAGE_CHILD.s )
+
+        val effectsViewModelBg = EffectsViewModel()
+        val effectsViewModelLogo = EffectsViewModel()
+        effectsViewModelLogo.color2 = LogoFilter1
+        effectsViewModelLogo.color1 = LogoFilter2
 
         enableEdgeToEdge()
         setContent {
@@ -61,15 +72,22 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = Home
+                startDestination = Login
             ){
                 composable<Home>{
-                    HomeScreen {
-                        navController.navigate( Login )
-                    }
+                    HomeScreen(
+                        fs, storage
+                    )
+//                    {
+//                        navController.popBackStack()
+//                        navController.navigate( Login ) { launchSingleTop = true }
+//                    }
                 }
                 composable<Login>{
-                    LoginScreen {
+                    LoginScreen(
+                        fs, storage, effectsViewModelBg, effectsViewModelLogo
+                    ) {
+                        // TODO: animation here, to wait until auth is loaded
                         navController.navigate( Home )
                     }
                 }
