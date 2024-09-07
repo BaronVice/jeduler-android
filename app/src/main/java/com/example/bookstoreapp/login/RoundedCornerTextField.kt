@@ -9,6 +9,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.bookstoreapp.ui.theme.BorderColor
 
@@ -16,6 +18,7 @@ import com.example.bookstoreapp.ui.theme.BorderColor
 fun RoundedCornerTextField(
     text: String,
     label: String,
+    passwordTransformation: Boolean = false,
     onValueChange: (String) -> Unit
 ){
     TextField(
@@ -33,6 +36,7 @@ fun RoundedCornerTextField(
         label = {
             Text(text = label, color = BorderColor)
         },
-        singleLine = true
+        singleLine = true,
+        visualTransformation = if (passwordTransformation) PasswordVisualTransformation() else VisualTransformation.None
     )
 }

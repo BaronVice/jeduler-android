@@ -75,13 +75,15 @@ class MainActivity : ComponentActivity() {
                 startDestination = Login
             ){
                 composable<Home>{
+                    // TODO: BRUUUUUUUUUUUUUUUUUUUUUUUUUH....................
+                    //  learn coroutines dammit...
+                    var a = 1
+                    for(i in 1..100000000){
+                        a += a + a
+                    }
                     HomeScreen(
                         fs, storage
                     )
-//                    {
-//                        navController.popBackStack()
-//                        navController.navigate( Login ) { launchSingleTop = true }
-//                    }
                 }
                 composable<Login>{
                     LoginScreen(
