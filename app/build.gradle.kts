@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.firebase.auth)
 
+    implementation (libs.google.accompanist.systemuicontroller)
+
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
     // Views/Fragments integration

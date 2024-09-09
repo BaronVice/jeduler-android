@@ -26,8 +26,8 @@ import com.example.bookstoreapp.R
 import com.example.bookstoreapp.ui.theme.LoginBoxFilter1
 import com.example.bookstoreapp.ui.theme.LogoFilter1
 import com.example.bookstoreapp.ui.theme.LogoFilter2
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 
@@ -35,14 +35,15 @@ import com.google.firebase.storage.StorageReference
 // TODO: add buttons to change backgrounds
 @Composable
 fun LoginScreen(
-    fs: FirebaseFirestore,
-    storage: StorageReference,
-    effectsViewModelBg: EffectsViewModel,
-    effectsViewModelLogo: EffectsViewModel,
     onLoginSuccess: () -> Unit
 ) {
     val auth = Firebase.auth
     val current = LocalContext.current
+
+    val effectsViewModelBg = EffectsViewModel()
+    val effectsViewModelLogo = EffectsViewModel()
+    effectsViewModelLogo.color2 = LogoFilter1
+    effectsViewModelLogo.color1 = LogoFilter2
 
     effectsViewModelBg.LaunchEffects()
     effectsViewModelLogo.LaunchEffects()
@@ -107,12 +108,14 @@ fun LoginScreen(
 
         LoginButton(text = "Sign In") {
             if (AuthUtils.signIn(auth, emailState.value, passwordState.value, current)){
+                idle()
                 onLoginSuccess()
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
         LoginButton(text = "Sign Up") {
             if (AuthUtils.signUp(auth, emailState.value, passwordState.value, current)){
+                idle()
                 onLoginSuccess()
             }
             effectsViewModelLogo.changeColors(Color.Red, Color.Green)
@@ -120,3 +123,11 @@ fun LoginScreen(
     }
 }
 
+fun idle(){
+    // TODO: BRUUUUUUUUUUUUUUUUUUUUUUUUUH....................
+    //  learn coroutines dammit...
+    var a = 1
+    for(i in 1..100000000){
+        a += a + a
+    }
+}
