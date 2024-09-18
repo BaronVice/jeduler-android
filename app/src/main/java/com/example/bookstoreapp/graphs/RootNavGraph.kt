@@ -31,7 +31,7 @@ fun RootNavigationGraph(
         }
 
         composable<Home>{
-            HomeScreen()
+            HomeScreen(navController)
         }
     }
 }

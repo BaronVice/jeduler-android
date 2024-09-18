@@ -13,7 +13,10 @@ import com.example.bookstoreapp.login.Login
 import com.example.bookstoreapp.search.Search
 
 @Composable
-fun HomeNavGraph(navController: NavHostController){
+fun HomeNavGraph(
+    rootNavController: NavHostController,
+    navController: NavHostController
+){
     NavHost(
         navController = navController,
         startDestination = Home
@@ -34,7 +37,7 @@ fun HomeNavGraph(navController: NavHostController){
 
         composable<Account>{
             AccountScreen {
-                navController.navigate(Auth)
+                rootNavController.navigate(Auth)
             }
         }
     }

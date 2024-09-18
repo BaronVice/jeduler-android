@@ -69,12 +69,16 @@ import com.google.firebase.storage.ktx.storage
 
 
 @Composable
-fun HomeScreen(navController: NavHostController = rememberNavController()) {
+fun HomeScreen(rootNavController: NavHostController) {
+    val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = { ActionButton(navController = navController) }
     ) {
-        innerPadding -> HomeNavGraph(navController = navController)
+        innerPadding -> HomeNavGraph(
+            rootNavController = rootNavController,
+            navController = navController
+        )
     }
 }
 
