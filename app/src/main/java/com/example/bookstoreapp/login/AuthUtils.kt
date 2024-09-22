@@ -27,8 +27,8 @@ object AuthUtils {
         var isLoggedIn = true
         auth
             .createUserWithEmailAndPassword(
-                email,
-                password
+                email.trim(),
+                password.trim()
             )
             .addOnSuccessListener{
                 val user = auth.currentUser
@@ -57,8 +57,8 @@ object AuthUtils {
         var isLoggedIn = true
         auth
             .signInWithEmailAndPassword(
-                email,
-                password
+                email.trim(),
+                password.trim()
             )
             .addOnSuccessListener{
                 val user = auth.currentUser

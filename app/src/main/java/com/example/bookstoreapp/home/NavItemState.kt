@@ -10,8 +10,9 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.bookstoreapp.account.Account
-import com.example.bookstoreapp.search.Search
+import com.example.bookstoreapp.home.account.Account
+import com.example.bookstoreapp.home.search.Search
+import com.example.bookstoreapp.home.tasks.Tasks
 
 data class NavItemState<T: Any>(
     val title: String,
@@ -29,7 +30,7 @@ data class NavItemState<T: Any>(
                 unselectedIcon = Icons.Outlined.Home,
                 hasBadge = false,
                 badgeNumber = 0,
-                Home
+                Tasks
             ),
             NavItemState(
                 title = "Search",

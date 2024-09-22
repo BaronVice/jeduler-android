@@ -1,6 +1,6 @@
-package com.example.bookstoreapp.search
+package com.example.bookstoreapp.home.tasks
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-object Search
+object Tasks

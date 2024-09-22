@@ -1,4 +1,4 @@
-package com.example.bookstoreapp.account
+package com.example.bookstoreapp.home.account
 
 import kotlinx.serialization.Serializable
 
