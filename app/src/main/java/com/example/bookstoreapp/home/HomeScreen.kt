@@ -25,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -50,25 +52,18 @@ fun HomeScreen(rootNavController: NavHostController) {
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
     val floatingBottomState = rememberSaveable { (mutableStateOf(true)) }
 
-    val categories = rememberSaveable {
-        mutableStateOf(
-            listOf(
-                Category(1, "Main", "#960018"),
-                Category(1, "Main", "#405919"),
-                Category(1, "Main", "#468499"),
-                Category(1, "Main", "#c77765"),
-                Category(1, "Main", "#ff80b0"),
-                Category(1, "Main", "#6a1c89"),
-                Category(1, "Main", "#f07819"),
-                Category(1, "Main", "#c77765"),
-                Category(1, "Main", "#ff80b0"),
-                Category(1, "Main", "#6a1c89"),
-                Category(1, "Main", "#f07819"),
-                Category(1, "Main", "#c77765"),
-                Category(1, "Main", "#ff80b0"),
-                Category(1, "Main", "#6a1c89"),
-                Category(1, "Main", "#ffffff")
-            )
+    val categories = remember {
+        mutableStateListOf(
+            Category(1, "Main", "#960018"),
+            Category(2, "Main", "#405919"),
+            Category(3, "Main", "#468499"),
+            Category(4, "Main", "#c77765"),
+            Category(5, "Main", "#ff80b0"),
+            Category(6, "Main", "#6a1c89"),
+            Category(7, "Main", "#f07819"),
+            Category(8, "Main", "#c77765"),
+            Category(9, "Main", "#ff80b0"),
+            Category(10, "Main", "#ffffff")
         )
     }
 

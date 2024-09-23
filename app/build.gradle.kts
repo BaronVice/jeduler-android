@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.coil.compose)
     implementation(libs.firebase.auth)
+    implementation(libs.colorpicker.compose)
 
     implementation (libs.google.accompanist.systemuicontroller)
 
