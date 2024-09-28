@@ -1,6 +1,7 @@
 package com.example.bookstoreapp.home.account
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,8 @@ fun AccountScreen(
                     modifier = Modifier
                         .padding(vertical = 40.dp)
                         .size(200.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Black, CircleShape),
                     contentScale = ContentScale.Crop
                 )
             } else {

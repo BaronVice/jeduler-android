@@ -9,5 +9,5 @@ data class Task(
     var categoryIds: List<Short>,
     var subtasks: List<Subtask>,
     var startsAt: String,
-    var notifyAt: String
+    var notifyAt: String // TODO: could be null
 )

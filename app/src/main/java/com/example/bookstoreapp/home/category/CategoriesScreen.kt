@@ -117,6 +117,7 @@ fun CategoryHolderEdit(
         val mainColor = Color(hexToColor(category.color))
         val contrastColor = getContrastColor(category.color)
         val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
 
         Box(modifier = Modifier.weight(0.8f), contentAlignment = Alignment.Center){
             val name = remember { mutableStateOf(category.name) }
@@ -125,8 +126,12 @@ fun CategoryHolderEdit(
             TextField(
                 value = name.value,
                 onValueChange = {
-                    category.name = it
-                    name.value = it
+                    if (it.length <= 20) {
+                        category.name = it
+                        name.value = it
+                    } else {
+                        showToast(context, "Max length is 20 chars")
+                    }
                     if (category.name == ""){
                         cursorColor.value = Color.Transparent
                     } else {

@@ -58,21 +58,6 @@ fun HomeScreen(
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
     val floatingBottomState = rememberSaveable { (mutableStateOf(true)) }
 
-    val categories = remember {
-        mutableStateListOf(
-            Category(1, "Main", "#960018"),
-            Category(2, "Main", "#405919"),
-            Category(3, "Main", "#468499"),
-            Category(4, "Main", "#c77765"),
-            Category(5, "Main", "#ff80b0"),
-            Category(6, "Main", "#6a1c89"),
-            Category(7, "Main", "#f07819"),
-            Category(8, "Main", "#c77765"),
-            Category(9, "Main", "#ff80b0"),
-            Category(10, "Main", "#ffffff")
-        )
-    }
-
     Scaffold(
         bottomBar = { BottomBar(navController = navController, bottomBarState) },
         floatingActionButton = { ActionButton(navController = navController, floatingBottomState) }
@@ -84,7 +69,6 @@ fun HomeScreen(
             lifecycleScope,
             bottomBarState,
             floatingBottomState,
-            categories
         )
     }
 }
