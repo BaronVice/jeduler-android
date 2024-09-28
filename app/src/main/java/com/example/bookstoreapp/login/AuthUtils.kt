@@ -1,6 +1,7 @@
 package com.example.bookstoreapp.login
 
 import android.content.Context
+import android.util.Log
 import com.example.bookstoreapp.AppUtils.showToast
 import com.google.firebase.auth.FirebaseAuth
 
@@ -65,6 +66,7 @@ object AuthUtils {
 //                    updateUI(user)
             }
             .addOnFailureListener {
+                Log.d("IM_HERE", "123")
                 showToast(
                     context,
                     it.message.toString()

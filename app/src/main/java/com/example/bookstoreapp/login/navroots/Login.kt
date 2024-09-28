@@ -1,4 +1,4 @@
-package com.example.bookstoreapp.login
+package com.example.bookstoreapp.login.navroots
 
 import kotlinx.serialization.Serializable
 

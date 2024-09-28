@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.LocalTextStyle
@@ -20,6 +21,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +42,8 @@ import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.home.HomeButton
+import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
@@ -54,12 +58,17 @@ fun CategoriesScreen(
             .padding(horizontal = 5.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
+        val lazyColumnListState = rememberLazyListState()
+        val corroutineScope = rememberCoroutineScope()
+
         val context = LocalContext.current
         Column{
             Box(
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.75f)
             ){
-                LazyColumn {
+                LazyColumn(
+                    state = lazyColumnListState
+                ) {
                     items(categories, key = {c -> c.id}){
                         category -> CategoryHolderEdit(navController, categories, category)
                     }
@@ -74,11 +83,14 @@ fun CategoriesScreen(
                             categories.add(
                                 // request on add to get id
                                 Category(
-                                    Random.nextInt(100, 100000000), // TODO: replace with id from request
+                                    Random.nextInt(100, 10000).toShort(), // TODO: replace with id from request
                                     getRandomCategoryName(categories),
                                     getRandomHex()
                                 )
                             )
+                            corroutineScope.launch {
+                                lazyColumnListState.scrollToItem(categories.size-1)
+                            }
                         } else {
                             showToast(
                                 context,
@@ -104,11 +116,12 @@ fun CategoryHolderEdit(
     Row{
         val mainColor = Color(hexToColor(category.color))
         val contrastColor = getContrastColor(category.color)
+        val focusManager = LocalFocusManager.current
+
         Box(modifier = Modifier.weight(0.8f), contentAlignment = Alignment.Center){
             val name = remember { mutableStateOf(category.name) }
             val cursorColor = remember { mutableStateOf(contrastColor) }
 
-            val focusManager = LocalFocusManager.current
             TextField(
                 value = name.value,
                 onValueChange = {
@@ -164,7 +177,7 @@ fun CategoryHolderEdit(
                 singleLine = true
             )
         }
-        Box(modifier = Modifier.weight(0.2f), contentAlignment = Alignment.Center){
+        Box(modifier = Modifier.weight(0.25f), contentAlignment = Alignment.Center){
             Box(
                 modifier = Modifier
                     .padding(10.dp)
@@ -174,7 +187,13 @@ fun CategoryHolderEdit(
                         RoundedCornerShape(8.dp)
                     )
                     .clickable {
-                        navController.navigate(category)
+                        if (category.name != ""){
+                            focusManager.clearFocus()
+
+                            navController.navigate(
+                                ColorPicker(categories.indexOfFirst { c -> c.id == category.id })
+                            )
+                        }
                     }
                     .padding(20.dp)
             )

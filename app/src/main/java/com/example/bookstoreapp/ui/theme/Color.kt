@@ -17,5 +17,9 @@ val LogoFilter1 = Color(0xD9DA7B33)
 val LogoFilter2 = Color(0xD9FC7321)
 val BorderColor = Color(0x99863B40)
 
+val HighPriority = Color(0xFFCE8F94)
+val MediumPriority = Color(0xFFCECCCC)
+val LowPriority =  Color(0xFFC9FFDC)
+
 val A0 = Color(0x00FFFFFF)
 

@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -42,12 +43,17 @@ import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Constants.STORAGE_CHILD
 import com.example.bookstoreapp.data.ImageUtils
 import com.example.bookstoreapp.graphs.HomeNavGraph
+import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.storage.ktx.storage
 
 
 @Composable
-fun HomeScreen(rootNavController: NavHostController) {
+fun HomeScreen(
+    googleAuthUiClient: GoogleAuthUiClient,
+    lifecycleScope: LifecycleCoroutineScope,
+    rootNavController: NavHostController
+) {
     val navController = rememberNavController()
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
     val floatingBottomState = rememberSaveable { (mutableStateOf(true)) }
@@ -74,6 +80,8 @@ fun HomeScreen(rootNavController: NavHostController) {
         innerPadding -> HomeNavGraph(
             rootNavController = rootNavController,
             navController = navController,
+            googleAuthUiClient,
+            lifecycleScope,
             bottomBarState,
             floatingBottomState,
             categories

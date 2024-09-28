@@ -2,9 +2,8 @@ package com.example.bookstoreapp.data
 
 import kotlinx.serialization.Serializable
 
-@Serializable
 data class Category(
-    val id: Int,
+    val id: Short,
     var name: String,
     var color: String
 )

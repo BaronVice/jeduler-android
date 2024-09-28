@@ -3,6 +3,7 @@ package com.example.bookstoreapp.graphs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,15 +15,20 @@ import com.example.bookstoreapp.home.ScreenContent
 import com.example.bookstoreapp.home.category.Categories
 import com.example.bookstoreapp.home.category.CategoriesScreen
 import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
+import com.example.bookstoreapp.home.category.colorpicker.ColorPickerScreen
 import com.example.bookstoreapp.home.tasks.Tasks
 import com.example.bookstoreapp.home.tasks.TasksScreen
-import com.example.bookstoreapp.login.Auth
+import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
+import com.example.bookstoreapp.login.google.GoogleAuthUiClient
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeNavGraph(
     rootNavController: NavHostController,
     navController: NavHostController,
+    googleAuthUiClient: GoogleAuthUiClient,
+    lifecycleScope: LifecycleCoroutineScope,
     bottomBarState: MutableState<Boolean>,
     floatingBottomState: MutableState<Boolean>,
     categories: SnapshotStateList<Category>
@@ -49,12 +55,19 @@ fun HomeNavGraph(
         }
 
         composable<Account>{
-            AccountScreen {
-                navController.popBackStack()
-                rootNavController.popBackStack()
-                rootNavController.navigate(Auth)
-                bottomBarState.value = false
-                floatingBottomState.value = false
+            AccountScreen(
+                googleAuthUiClient.getSignedInUser()
+            ) {
+                lifecycleScope.launch {
+                    googleAuthUiClient.signOut()
+
+                    navController.popBackStack()
+                    rootNavController.popBackStack()
+                    rootNavController.navigate(Auth)
+                    bottomBarState.value = false
+                    floatingBottomState.value = false
+                }
+
             }
             bottomBarState.value = true
             floatingBottomState.value = false
@@ -62,18 +75,22 @@ fun HomeNavGraph(
 
         composable<Categories>{
             CategoriesScreen(categories, navController /* TODO: navController */){
-//                navController.popBackStack()
+                navController.popBackStack()
                 navController.navigate(Tasks)
             }
             bottomBarState.value = false
             floatingBottomState.value = false
         }
 
-        composable<Category> {
+        composable<ColorPicker> {
             backStackEntry ->
-            val category: Category = backStackEntry.toRoute()
-            ScreenContent(name = category.name) {
-
+            val colorPicker: ColorPicker = backStackEntry.toRoute()
+            ColorPickerScreen(
+                categories,
+                colorPicker.id
+            ) {
+                navController.popBackStack()
+                navController.navigate(Categories)
             }
         }
     }

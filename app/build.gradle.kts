@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.firebase.auth)
     implementation(libs.colorpicker.compose)
+    implementation(libs.play.services.auth)
 
     implementation (libs.google.accompanist.systemuicontroller)
 
