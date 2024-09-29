@@ -18,9 +18,10 @@ val LogoFilter2 = Color(0xD9FC7321)
 val BorderColor = Color(0x99863B40)
 
 val TaskCardColor = Color(0xFFFFF9F3)
-val HighPriority = Color(0xFFE2ADB1)
-val MediumPriority = Color(0xFFFCEEC4)
-val LowPriority =  Color(0xFFA2FFC3)
+val HighPriority = Color(0xFFFDD0D3)
+val MediumPriority = Color(0xFFFFF5D7)
+val LowPriority =  Color(0xFFE5FFEE)
+val PriorityChosenBorderColor = Color(0xFFE28E2D)
 
 val A0 = Color(0x00FFFFFF)
 

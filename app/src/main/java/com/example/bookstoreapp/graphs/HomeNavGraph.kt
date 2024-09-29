@@ -23,6 +23,8 @@ import com.example.bookstoreapp.home.tasks.Tasks
 import com.example.bookstoreapp.home.tasks.TasksScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
+import com.example.bookstoreapp.home.tasks.taskview.TaskView
+import com.example.bookstoreapp.home.tasks.taskview.TaskViewScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -56,7 +58,7 @@ fun HomeNavGraph(
                 1,
                 "Weird1",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -67,7 +69,7 @@ fun HomeNavGraph(
                 2,
                 "Weird2",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -78,7 +80,7 @@ fun HomeNavGraph(
                 3,
                 "Weird3",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -89,7 +91,7 @@ fun HomeNavGraph(
                 4,
                 "Weird4",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -100,7 +102,7 @@ fun HomeNavGraph(
                 5,
                 "Weird5",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -111,7 +113,7 @@ fun HomeNavGraph(
                 6,
                 "Weird6",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -122,7 +124,7 @@ fun HomeNavGraph(
                 7,
                 "Weird7",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -133,7 +135,7 @@ fun HomeNavGraph(
                 8,
                 "Weird8",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -144,7 +146,7 @@ fun HomeNavGraph(
                 9,
                 "Weird9",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -155,7 +157,7 @@ fun HomeNavGraph(
                 10,
                 "Weird10",
                 "Aboba",
-                false,
+                Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
                 listOf(),
                 listOf(),
@@ -171,6 +173,7 @@ fun HomeNavGraph(
     ) {
         composable<Tasks>{
             TasksScreen(
+                navController,
                 categories,
                 tasks
             ){
@@ -209,7 +212,7 @@ fun HomeNavGraph(
         }
 
         composable<Categories>{
-            CategoriesScreen(categories, navController /* TODO: navController */){
+            CategoriesScreen(categories, navController){
                 navController.popBackStack()
                 navController.navigate(Tasks)
             }
@@ -227,6 +230,20 @@ fun HomeNavGraph(
                 navController.popBackStack()
                 navController.navigate(Categories)
             }
+        }
+
+        composable<TaskView> {
+            backStackEntry ->
+            val taskView: TaskView = backStackEntry.toRoute()
+            TaskViewScreen(
+                tasks,
+                taskView.id
+            ) {
+                navController.popBackStack()
+                navController.navigate(Tasks)
+            }
+            bottomBarState.value = false
+            floatingBottomState.value = false
         }
     }
 }

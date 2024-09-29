@@ -25,12 +25,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
+import com.example.bookstoreapp.home.TaskCard
+import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.ui.theme.BorderColor
 import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
@@ -39,6 +43,7 @@ import com.example.bookstoreapp.ui.theme.TaskCardColor
 
 @Composable
 fun TasksScreen(
+    navController: NavHostController,
     categories: SnapshotStateList<Category>,
     tasks: SnapshotStateList<Task>,
     onCategoriesClick: () -> Unit
@@ -63,12 +68,15 @@ fun TasksScreen(
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Upcoming tasks:",
+                text = "Upcoming tasks",
                 color = Color.Black,
                 fontSize = 30.sp,
+                textAlign = TextAlign.Center,
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                     vertical = 15.dp,
                     horizontal = 4.dp
                 )
@@ -79,7 +87,11 @@ fun TasksScreen(
             ) {
                 // TODO: request on getting 10 tasks, sort upcoming first
                 items(tasks){
-                    task -> TaskCard(task = task)
+                    task -> TaskCard(task = task){
+                        navController.navigate(
+                            TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
+                        )
+                    }
                 }
             }
         }
@@ -90,67 +102,26 @@ fun TasksScreen(
 fun CategoryHolder(
     category: Category
 ){
-    Text(
-        text = category.name,
-        color = getContrastColor(category.color),
+    Box(
         modifier = Modifier
-            .padding(10.dp)
+            .padding(5.dp)
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .background(
-                Color(hexToColor(category.color)),
-                RoundedCornerShape(8.dp)
+    ){
+        Surface(
+            shadowElevation = 8.dp,
+            shape = RoundedCornerShape(8.dp),
+            color = Color(hexToColor(category.color))
+        ){
+            Text(
+                text = category.name,
+                color = getContrastColor(category.color),
+                modifier = Modifier
+                    .padding(10.dp)
+                    .padding(20.dp),
+                fontSize = 20.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Medium,
             )
-            .padding(20.dp),
-        fontSize = 20.sp,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Medium,
-    )
-}
-
-@Composable
-fun TaskCard(
-    task: Task
-){
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                .background(
-                    TaskCardColor,
-                    RoundedCornerShape(8.dp)
-                )
-        ) {
-            Surface(
-                shadowElevation = 8.dp,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Column {
-                    Text(
-                        text = task.name,
-                        color = Color.Black,
-                        fontSize = 25.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                when (task.priority.toInt()) {
-                                    1 -> HighPriority
-                                    2 -> MediumPriority
-                                    else -> {
-                                        LowPriority
-                                    }
-                                },
-                                RoundedCornerShape(8.dp, 8.dp, 0.dp, 0.dp)
-                            )
-                            .padding(
-                                vertical = 10.dp,
-                                horizontal = 20.dp
-                            )
-                    )
-                    Spacer(modifier = Modifier.height(50.dp))
-                }
-            }
         }
+    }
 }
