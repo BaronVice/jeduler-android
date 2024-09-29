@@ -41,7 +41,7 @@ import com.example.bookstoreapp.AppUtils.getRandomHex
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Category
-import com.example.bookstoreapp.home.HomeButton
+import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -204,19 +204,4 @@ fun CategoryHolderEdit(
             )
         }
     }
-//    Text(
-//        text = category.name,
-//        color = getContrastColor(category.color),
-//        modifier = Modifier
-//            .padding(10.dp)
-//            .background(
-//                Color(hexToColor(category.color)),
-//                RoundedCornerShape(8.dp)
-//            )
-//            .fillMaxWidth()
-//            .padding(20.dp),
-//        fontSize = 20.sp,
-//        fontFamily = FontFamily.SansSerif,
-//        fontWeight = FontWeight.Medium,
-//    )
 }

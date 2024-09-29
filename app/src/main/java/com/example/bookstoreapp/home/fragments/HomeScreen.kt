@@ -1,4 +1,4 @@
-package com.example.bookstoreapp.home
+package com.example.bookstoreapp.home.fragments
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,9 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -39,10 +37,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookstoreapp.data.Book
-import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Constants.STORAGE_CHILD
 import com.example.bookstoreapp.data.ImageUtils
 import com.example.bookstoreapp.graphs.HomeNavGraph
+import com.example.bookstoreapp.home.NavItemState
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.storage.ktx.storage

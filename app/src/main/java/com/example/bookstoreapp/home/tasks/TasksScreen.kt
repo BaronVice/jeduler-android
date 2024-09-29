@@ -1,6 +1,5 @@
 package com.example.bookstoreapp.home.tasks
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -33,13 +31,8 @@ import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
-import com.example.bookstoreapp.home.TaskCard
+import com.example.bookstoreapp.home.fragments.TaskCard
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
-import com.example.bookstoreapp.ui.theme.BorderColor
-import com.example.bookstoreapp.ui.theme.HighPriority
-import com.example.bookstoreapp.ui.theme.LowPriority
-import com.example.bookstoreapp.ui.theme.MediumPriority
-import com.example.bookstoreapp.ui.theme.TaskCardColor
 
 @Composable
 fun TasksScreen(

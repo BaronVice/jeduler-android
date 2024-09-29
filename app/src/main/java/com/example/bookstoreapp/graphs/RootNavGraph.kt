@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,9 +14,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.home.Home
-import com.example.bookstoreapp.home.HomeScreen
+import com.example.bookstoreapp.home.fragments.HomeScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.login.navroots.Login
 import com.example.bookstoreapp.login.LoginScreen

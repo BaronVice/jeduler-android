@@ -1,26 +1,29 @@
 package com.example.bookstoreapp.home.tasks.taskview
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,16 +31,15 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
-import com.example.bookstoreapp.home.HomeButton
-import com.example.bookstoreapp.home.TaskCard
+import com.example.bookstoreapp.home.fragments.CategoryCard
+import com.example.bookstoreapp.home.fragments.HomeButton
+import com.example.bookstoreapp.home.fragments.HomeTextField
 import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
 import com.example.bookstoreapp.ui.theme.MediumPriority
@@ -46,6 +48,8 @@ import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
 @Composable
 fun TaskViewScreen(
     tasks: SnapshotStateList<Task>,
+    chosen: SnapshotStateList<Category>,
+    available: SnapshotStateList<Category>,
     index: Int,
     navBack: () -> Unit
 ){
@@ -67,17 +71,42 @@ fun TaskViewScreen(
         borderColors[task.priority-1].value = PriorityChosenBorderColor
 
         Column{
-            TaskViewTextField(
+            var isTaskEditable by remember { mutableStateOf(false) }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Switch(
+                    checked = isTaskEditable,
+                    onCheckedChange = {
+                        isTaskEditable = it
+                    },
+                    enabled = true,
+                    modifier = Modifier.padding(10.dp)
+                )
+                Text(
+                    text = "Editable",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    fontWeight = FontWeight.Light,
+                )
+            }
+
+            HomeTextField(
                 text = task.name,
                 "Name",
                 true
             ){
                 task.name = it
             }
-            TaskViewTextField(
+            HomeTextField(
                 text = task.description,
                 "Description",
-                false
+                false,
+                maxLength = 200
             ){
                 task.description = it
             }
@@ -91,7 +120,7 @@ fun TaskViewScreen(
                 PriorityButton(
                     text = "Low",
                     color = LowPriority,
-                    borderColors[0].value
+                    borderColors[2].value
                 ) {
                     task.priority = 3
                     updateBorderColors(borderColors, task.priority)
@@ -107,13 +136,58 @@ fun TaskViewScreen(
                 PriorityButton(
                     text = "High",
                     color = HighPriority,
-                    borderColors[2].value
+                    borderColors[0].value
                 ) {
                     task.priority = 1
                     updateBorderColors(borderColors, task.priority)
                 }
             }
 
+            Text(
+                text = "Chosen categories",
+                color = Color.Black,
+                fontSize = 25.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Light,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 10.dp, 10.dp, 0.dp)
+            )
+            val chosenListState = rememberLazyListState()
+            LazyRow(
+                state = chosenListState,
+                modifier = Modifier.height(60.dp)
+            ) {
+                items(chosen, key = {c -> c.id}){
+                    category -> CategoryCard(category){
+                        chosen.removeIf { c -> c.id == category.id }
+                        available.add(category)
+                    }
+                }
+            }
+            Text(
+                text = "Available categories",
+                color = Color.Black,
+                fontSize = 25.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Light,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
+            )
+            val availableListState = rememberLazyListState()
+            LazyRow(
+                state = availableListState,
+                modifier = Modifier.height(60.dp)
+            ) {
+                items(available, key = {c -> c.id}){
+                    category -> CategoryCard(category){
+                        available.removeIf { c -> c.id == category.id }
+                        chosen.add(category)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             HomeButton(text = "To tasks") {
                 navBack()
             }
@@ -129,48 +203,6 @@ fun updateBorderColors(
         c.value = Color.Black
     }
     colors[priority-1].value = PriorityChosenBorderColor
-}
-
-@Composable
-fun TaskViewTextField(
-    text: String,
-    label: String,
-    singleLine: Boolean,
-    onValueChange: (String) -> Unit
-){
-    val focusManager = LocalFocusManager.current
-    var tfText by remember { mutableStateOf(text) }
-    TextField(
-        value = tfText,
-        onValueChange = {
-            tfText = it
-            onValueChange(it)
-        },
-        maxLines = 4, // TODO: only visible, not actual
-//        minLines = 4,
-        shape = RoundedCornerShape(8.dp),
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color.White,
-            focusedContainerColor = Color.White,
-            cursorColor = Color.Black,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
-        ),
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .padding(),
-        label = {
-            Text(text = label, color = Color.Black)
-        },
-        singleLine = singleLine,
-    )
 }
 
 @Composable

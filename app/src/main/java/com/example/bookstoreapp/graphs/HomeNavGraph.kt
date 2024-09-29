@@ -235,8 +235,17 @@ fun HomeNavGraph(
         composable<TaskView> {
             backStackEntry ->
             val taskView: TaskView = backStackEntry.toRoute()
+            val chosen = remember { mutableStateListOf<Category>() }
+            val available = remember { mutableStateListOf<Category>() }
+
+            for (c in categories){
+                if (c.id in tasks[taskView.id].categoryIds) chosen.add(c)
+                else available.add(c)
+            }
             TaskViewScreen(
                 tasks,
+                chosen,
+                available,
                 taskView.id
             ) {
                 navController.popBackStack()

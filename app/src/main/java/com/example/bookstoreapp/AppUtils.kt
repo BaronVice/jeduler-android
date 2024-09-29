@@ -37,6 +37,11 @@ object AppUtils {
         ).show()
     }
 
+    fun parseTaskDate(date: String, delimiter: String = "   "): String{
+        val parsed = date.split("+")
+        return parsed[1] + delimiter + parsed[0]
+    }
+
     fun hexToColor(hex: String): Int {
         return android.graphics.Color.parseColor(hex)
     }
