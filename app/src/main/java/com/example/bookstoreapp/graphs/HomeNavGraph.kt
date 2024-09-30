@@ -23,6 +23,7 @@ import com.example.bookstoreapp.home.tasks.Tasks
 import com.example.bookstoreapp.home.tasks.TasksScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
+import com.example.bookstoreapp.home.tasks.taskview.TaskCategoryLists
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
@@ -60,7 +61,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -71,7 +72,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -82,7 +83,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -93,7 +94,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -104,7 +105,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -115,7 +116,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -126,7 +127,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -137,7 +138,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -148,7 +149,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -159,7 +160,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                listOf(),
+                mutableListOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -235,18 +236,13 @@ fun HomeNavGraph(
         composable<TaskView> {
             backStackEntry ->
             val taskView: TaskView = backStackEntry.toRoute()
-            val chosen = remember { mutableStateListOf<Category>() }
-            val available = remember { mutableStateListOf<Category>() }
 
-            for (c in categories){
-                if (c.id in tasks[taskView.id].categoryIds) chosen.add(c)
-                else available.add(c)
-            }
             TaskViewScreen(
-                tasks,
-                chosen,
-                available,
-                taskView.id
+                TaskCategoryLists(
+                    categories.toList()
+                ),
+                tasks[taskView.id]
+//                taskView.id
             ) {
                 navController.popBackStack()
                 navController.navigate(Tasks)

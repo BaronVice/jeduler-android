@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,14 +48,13 @@ import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
 
 @Composable
 fun TaskViewScreen(
-    tasks: SnapshotStateList<Task>,
-    chosen: SnapshotStateList<Category>,
-    available: SnapshotStateList<Category>,
-    index: Int,
+    data: TaskCategoryLists,
+    task: Task,
+    // index: Int, // todo: oneDelete instead of index?
     navBack: () -> Unit
 ){
     val bgColor = remember { mutableStateOf(Color.White) }
-    val task = tasks[index]
+//    val task = data.tasks[index]
 
     Box(
         modifier = Modifier
@@ -63,21 +63,14 @@ fun TaskViewScreen(
             .background(bgColor.value),
         contentAlignment = Alignment.Center
     ){
-        val borderColors = listOf(
-            remember { mutableStateOf(Color.Black) },
-            remember { mutableStateOf(Color.Black) },
-            remember { mutableStateOf(Color.Black) }
-        )
-        borderColors[task.priority-1].value = PriorityChosenBorderColor
-
         Column{
-            var isTaskEditable by remember { mutableStateOf(false) }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                var isTaskEditable by remember { mutableStateOf(false) }
                 Switch(
                     checked = isTaskEditable,
                     onCheckedChange = {
@@ -117,6 +110,13 @@ fun TaskViewScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val borderColors = listOf(
+                    remember { mutableStateOf(Color.Black) },
+                    remember { mutableStateOf(Color.Black) },
+                    remember { mutableStateOf(Color.Black) }
+                )
+                borderColors[task.priority-1].value = PriorityChosenBorderColor
+
                 PriorityButton(
                     text = "Low",
                     color = LowPriority,
@@ -153,14 +153,23 @@ fun TaskViewScreen(
                     .fillMaxWidth()
                     .padding(10.dp, 10.dp, 10.dp, 0.dp)
             )
-            val chosenListState = rememberLazyListState()
+
+            val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
+            val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
+//            chosen.clear()
+//            available.clear()
+//
+//            for (c in data.categories){
+//                if (c.id in task.categoryIds) chosen.add(c)
+//                else available.add(c)
+//            }
             LazyRow(
-                state = chosenListState,
                 modifier = Modifier.height(60.dp)
             ) {
                 items(chosen, key = {c -> c.id}){
                     category -> CategoryCard(category){
                         chosen.removeIf { c -> c.id == category.id }
+                        task.categoryIds.remove(category.id)
                         available.add(category)
                     }
                 }
@@ -175,14 +184,13 @@ fun TaskViewScreen(
                     .fillMaxWidth()
                     .padding(10.dp, 0.dp, 10.dp, 0.dp)
             )
-            val availableListState = rememberLazyListState()
             LazyRow(
-                state = availableListState,
                 modifier = Modifier.height(60.dp)
             ) {
                 items(available, key = {c -> c.id}){
                     category -> CategoryCard(category){
                         available.removeIf { c -> c.id == category.id }
+                        task.categoryIds.add(category.id)
                         chosen.add(category)
                     }
                 }
