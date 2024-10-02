@@ -241,7 +241,10 @@ fun HomeNavGraph(
                 TaskCategoryLists(
                     categories.toList()
                 ),
-                tasks[taskView.id]
+                tasks[taskView.id],
+                // TODO: also compare if anything has changed
+                firstButtonText = "Save",
+                firstButtonAction = {}
 //                taskView.id
             ) {
                 navController.popBackStack()

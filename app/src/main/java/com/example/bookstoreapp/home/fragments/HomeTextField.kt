@@ -42,8 +42,8 @@ fun HomeTextField(
             }
 
         },
-        maxLines = 4, // only visible, not actual
-        minLines = 4,
+        maxLines = 3, // only visible, not actual
+        minLines = 3,
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.White,

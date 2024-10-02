@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import com.example.bookstoreapp.data.Category
+import java.util.Calendar
 import kotlin.random.Random
 
 object AppUtils {
@@ -36,6 +37,25 @@ object AppUtils {
             Toast.LENGTH_SHORT,
         ).show()
     }
+
+    fun defaultTime(): Calendar {
+        val currentTime = Calendar.getInstance()
+        currentTime.isLenient = false
+
+        currentTime.add(Calendar.MINUTE, 10)
+        return currentTime
+    }
+    fun defaultDate(): Calendar {
+        val currentTime = Calendar.getInstance()
+        currentTime.isLenient = false
+
+        currentTime.add(Calendar.HOUR, 24)
+        return currentTime
+    }
+
+
+    fun getTimeFromTask(date: String) = date.split("+")[1]
+    fun getDateFromTask(date: String) = date.split("+")[0]
 
     fun parseTaskDate(date: String, delimiter: String = "   "): String{
         val parsed = date.split("+")

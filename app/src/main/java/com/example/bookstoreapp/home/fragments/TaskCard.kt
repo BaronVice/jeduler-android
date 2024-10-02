@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.fragments
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ fun TaskCard(
     task: Task,
     onClick: () -> Unit
 ) {
+    Log.d("TASK_CARD", task.startsAt)
     OutlinedCard(
         onClick = { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
