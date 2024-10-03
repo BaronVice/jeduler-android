@@ -23,10 +23,11 @@ import com.example.bookstoreapp.ui.theme.MediumPriority
 @Composable
 fun CategoryCard(
     category: Category,
+    enabled: Boolean,
     onClick: () -> Unit
 ){
     OutlinedCard(
-        onClick = { onClick() },
+        onClick = { if (enabled) onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(

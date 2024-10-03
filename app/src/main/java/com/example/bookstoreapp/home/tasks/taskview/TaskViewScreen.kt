@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Switch
@@ -48,12 +49,13 @@ import com.example.bookstoreapp.ui.theme.MediumPriority
 import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskViewScreen(
-    data: TaskCategoryLists,
+    data: CategoryList,
     originalTask: Task,
     firstButtonText: String,
     firstButtonAction: () -> Unit,
@@ -78,13 +80,13 @@ fun TaskViewScreen(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
+            var isTaskEditable by remember { mutableStateOf(false) }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                var isTaskEditable by remember { mutableStateOf(false) }
                 Switch(
                     checked = isTaskEditable,
                     onCheckedChange = {
@@ -105,7 +107,8 @@ fun TaskViewScreen(
             HomeTextField(
                 text = task.name,
                 "Name",
-                true
+                true,
+                enabled = isTaskEditable
             ){
                 task.name = it
             }
@@ -113,14 +116,15 @@ fun TaskViewScreen(
                 text = task.description,
                 "Description",
                 false,
-                maxLength = 150
+                maxLength = 150,
+                enabled = isTaskEditable
             ){
                 task.description = it
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -134,7 +138,8 @@ fun TaskViewScreen(
                 PriorityButton(
                     text = "Low",
                     color = LowPriority,
-                    borderColors[2].value
+                    borderColors[2].value,
+                    enabled = isTaskEditable
                 ) {
                     task.priority = 3
                     updateBorderColors(borderColors, task.priority)
@@ -142,7 +147,8 @@ fun TaskViewScreen(
                 PriorityButton(
                     text = "Medium",
                     color = MediumPriority,
-                    borderColors[1].value
+                    borderColors[1].value,
+                    enabled = isTaskEditable
                 ) {
                     task.priority = 2
                     updateBorderColors(borderColors, task.priority)
@@ -150,7 +156,8 @@ fun TaskViewScreen(
                 PriorityButton(
                     text = "High",
                     color = HighPriority,
-                    borderColors[0].value
+                    borderColors[0].value,
+                    enabled = isTaskEditable
                 ) {
                     task.priority = 1
                     updateBorderColors(borderColors, task.priority)
@@ -165,7 +172,7 @@ fun TaskViewScreen(
                 fontWeight = FontWeight.Light,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp, 10.dp, 10.dp, 0.dp)
+                    .padding(8.dp, 8.dp, 8.dp, 0.dp)
             )
 
             val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
@@ -174,7 +181,7 @@ fun TaskViewScreen(
                 modifier = Modifier.height(60.dp)
             ) {
                 items(chosen, key = {c -> c.id}){
-                    category -> CategoryCard(category){
+                    category -> CategoryCard(category, isTaskEditable){
                         chosen.removeIf { c -> c.id == category.id }
                         task.categoryIds.remove(category.id)
                         available.add(category)
@@ -189,13 +196,13 @@ fun TaskViewScreen(
                 fontWeight = FontWeight.Light,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
             )
             LazyRow(
                 modifier = Modifier.height(60.dp)
             ) {
                 items(available, key = {c -> c.id}){
-                    category -> CategoryCard(category){
+                    category -> CategoryCard(category, isTaskEditable){
                         available.removeIf { c -> c.id == category.id }
                         task.categoryIds.add(category.id)
                         chosen.add(category)
@@ -211,12 +218,15 @@ fun TaskViewScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
-                var showAdvancedExample by remember { mutableStateOf(false) }
+                var showTimePicker by remember { mutableStateOf(false) }
 
-                if (showAdvancedExample){
+                var selectedDate: DatePickerState? by remember { mutableStateOf(null) }
+                var showDatePicker by remember { mutableStateOf(false) }
+
+                if (showTimePicker){
                     TimePicker(
                         onDismiss = {
-                            showAdvancedExample = false
+                            showTimePicker = false
                         },
                         onConfirm = {
                             time ->
@@ -227,12 +237,28 @@ fun TaskViewScreen(
                             cal.set(Calendar.MINUTE, selectedTime!!.minute)
                             cal.isLenient = false
 
-                            // todo: somehow it break app (found it)
                             cardTime = timeFormatter.format(cal.time)
-                            showAdvancedExample = false
+                            showTimePicker = false
                         }
                     )
                 }
+                if (showDatePicker){
+                    DatePickerModal(
+                        onDismiss = {
+                            showDatePicker = false
+                        },
+                        onDateSelected = {
+                            date ->
+                            selectedDate = date
+
+                            cardDate = dateFormater.format(
+                                Date(selectedDate!!.selectedDateMillis!!)
+                            )
+                            showDatePicker = false
+                        }
+                    )
+                }
+
 
                 Text(
                     text = "Starts at ",
@@ -244,8 +270,9 @@ fun TaskViewScreen(
 
                 OutlinedCard(
                     onClick = {
-                        showAdvancedExample = true
+                        showTimePicker = true
                     },
+                    enabled = isTaskEditable,
                     modifier = Modifier.padding(horizontal = 15.dp)
                 ) {
                     Text(
@@ -258,14 +285,31 @@ fun TaskViewScreen(
                             .padding(10.dp)
                     )
                 }
+                OutlinedCard(
+                    onClick = {
+                        showDatePicker = true
+                    },
+                    enabled = isTaskEditable,
+                    modifier = Modifier.padding(horizontal = 15.dp)
+                ) {
+                    Text(
+                        text = cardDate,
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier
+                            .padding(10.dp)
+                    )
+                }
             }
 
             HomeButton(text = firstButtonText) {
-                task.startsAt = "12.08.2025" + "+" + cardTime
-                if (task.equals(originalTask)){
+                task.startsAt = "$cardDate+$cardTime"
+                if (task == originalTask){
                     Log.d("IS_EQUAL", "Yes")
                 } else {
-                    Log.d("IS_EQUAL", "No")
+                    Log.d("IS_EQUAL", cardDate)
                     originalTask.name = task.name
                     originalTask.description = task.description
                     originalTask.priority = task.priority
@@ -298,10 +342,11 @@ fun PriorityButton(
     text: String,
     color: Color,
     borderColor: Color,
+    enabled: Boolean,
     onClick: () -> Unit
 ){
     Button(
-        onClick = { onClick() },
+        onClick = { if (enabled) onClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = color,
         ),
@@ -311,7 +356,7 @@ fun PriorityButton(
                 width = 1.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(8.dp)
-            )
+            ),
     ) {
         Text(
             text = text,

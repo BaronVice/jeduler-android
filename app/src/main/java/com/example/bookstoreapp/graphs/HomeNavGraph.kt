@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,7 +22,7 @@ import com.example.bookstoreapp.home.tasks.Tasks
 import com.example.bookstoreapp.home.tasks.TasksScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
-import com.example.bookstoreapp.home.tasks.taskview.TaskCategoryLists
+import com.example.bookstoreapp.home.tasks.taskview.CategoryList
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
@@ -46,11 +45,6 @@ fun HomeNavGraph(
             Category(3, "Main", "#468499"),
             Category(4, "Main", "#c77765"),
             Category(5, "Main", "#ff80b0"),
-            Category(6, "Main", "#6a1c89"),
-            Category(7, "Main", "#f07819"),
-            Category(8, "Main", "#c77765"),
-            Category(9, "Main", "#ff80b0"),
-            Category(10, "Main", "#ffffff")
         )
     }
     val tasks = remember {
@@ -238,7 +232,7 @@ fun HomeNavGraph(
             val taskView: TaskView = backStackEntry.toRoute()
 
             TaskViewScreen(
-                TaskCategoryLists(
+                CategoryList(
                     categories.toList()
                 ),
                 tasks[taskView.id],

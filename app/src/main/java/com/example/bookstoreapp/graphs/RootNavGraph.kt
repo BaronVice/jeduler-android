@@ -1,12 +1,16 @@
 package com.example.bookstoreapp.graphs
 
+import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +43,7 @@ fun RootNavigationGraph(
             composable<Login> {
                 val signInViewModel = viewModel<SignInViewModel>()
                 val state by signInViewModel.state.collectAsStateWithLifecycle()
+                val signInButtonState = remember { mutableStateOf(true) }
 
                 // Check if already signed-in
                 LaunchedEffect(Unit) {
@@ -50,13 +55,17 @@ fun RootNavigationGraph(
                 val launcher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.StartIntentSenderForResult(),
                     onResult = {
-                        result -> if (result.resultCode == RESULT_OK){
+                        result ->
+                        if (result.resultCode == RESULT_OK){
                             lifecycleScope.launch {
                                 val signInResult = googleAuthUiClient.signInWithIntent(
                                     intent = result.data?: return@launch
                                 )
                                 signInViewModel.onSignInResult(signInResult)
                             }
+                        }
+                        if (result.resultCode == RESULT_CANCELED){
+                            signInButtonState.value = true
                         }
                     }
                 )
@@ -71,8 +80,10 @@ fun RootNavigationGraph(
                 }
 
                 LoginScreen(
-                    state
+                    state,
+                    signInButtonState
                 ) {
+                    signInButtonState.value = false
                     lifecycleScope.launch {
                         val signInIntentSender = googleAuthUiClient.signIn()
                         launcher.launch(

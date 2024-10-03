@@ -13,10 +13,12 @@ import com.example.bookstoreapp.ui.theme.BorderColor
 @Composable
 fun LoginButton(
     text: String,
+    enable: Boolean,
     onClick: () -> Unit
 ){
     Button(
         onClick = { onClick() },
+        enabled = enable,
         modifier = Modifier.fillMaxWidth(0.5f),
         colors = ButtonDefaults.buttonColors(
             containerColor = BorderColor
