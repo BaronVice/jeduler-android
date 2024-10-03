@@ -36,11 +36,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.bookstoreapp.AppUtils.checkForCategoryNameConflictOnEdit
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.getRandomCategoryName
 import com.example.bookstoreapp.AppUtils.getRandomHex
 import com.example.bookstoreapp.AppUtils.hexToColor
+import com.example.bookstoreapp.AppUtils.isCategoryNameUnique
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.home.fragments.HomeButton
@@ -129,12 +129,11 @@ fun CategoryHolderEdit(
                 value = name.value,
                 onValueChange = {
                     if (it.length <= 20) {
-                        category.name = it
                         name.value = it
                     } else {
                         showToast(context, "Max length is 20 chars")
                     }
-                    if (category.name == ""){
+                    if (name.value == ""){
                         cursorColor.value = Color.Transparent
                     } else {
                         cursorColor.value = contrastColor
@@ -178,9 +177,12 @@ fun CategoryHolderEdit(
                         if (!focusState.isFocused) {
                             if (name.value == "") {
                                 categories.removeIf { c -> c.id == category.id }
-                            } else if (checkForCategoryNameConflictOnEdit(name.value, categories)) {
-                                Log.d("CATEGORY_NAME", name.value)
-                                name.value = getRandomCategoryName(categories)
+                            } else if (isCategoryNameUnique(name.value, categories)) {
+                                category.name = name.value
+                                if (!isCategoryNameUnique(name.value.trim(), categories))
+                                    showToast(context, "Sure. I'm not a policeman to stop you.")
+                            } else if (name.value != category.name) {
+                                name.value = category.name
                                 showToast(context, "Nope, already exists")
                             }
                         }

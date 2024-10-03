@@ -82,31 +82,18 @@ object AppUtils {
         existingCategories: List<Category>
     ): String {
         for (category in genericCategoryNames){
-            if (!checkForCategoryNameConflict(category, existingCategories))
+            if (isCategoryNameUnique(category, existingCategories))
                 return category
         }
 
         return genericCategoryNames.last()
     }
 
-    private fun checkForCategoryNameConflict(
+    fun isCategoryNameUnique(
         name: String,
         existingCategories: List<Category>
     ): Boolean {
-        if (existingCategories.find { c -> c.name == name } == null){
-            return false
-        }
-        return true
-    }
-
-    fun checkForCategoryNameConflictOnEdit(
-        name: String,
-        existingCategories: List<Category>
-    ): Boolean {
-        if (existingCategories.count { c -> c.name == name } < 2){
-            return false
-        }
-        return true
+        return existingCategories.find { c -> c.name == name } == null
     }
 
     fun getRandomHex(): String {

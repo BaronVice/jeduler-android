@@ -26,7 +26,6 @@ fun HomeTextField(
     label: String,
     singleLine: Boolean,
     maxLength: Int = 25,
-    enabled: Boolean,
     onValueChange: (String) -> Unit
 ){
     val focusManager = LocalFocusManager.current
@@ -34,7 +33,6 @@ fun HomeTextField(
     var tfText by remember { mutableStateOf(text) }
     TextField(
         value = tfText,
-        enabled = enabled,
         onValueChange = {
             if (it.length <= maxLength) {
                 tfText = it

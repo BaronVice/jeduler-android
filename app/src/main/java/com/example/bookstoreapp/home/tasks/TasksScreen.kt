@@ -31,6 +31,7 @@ import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
+import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
 import com.example.bookstoreapp.home.fragments.TaskCard
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
 
@@ -70,21 +71,36 @@ fun TasksScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                    vertical = 15.dp,
-                    horizontal = 4.dp
-                )
+                        vertical = 15.dp,
+                        horizontal = 4.dp
+                    )
             )
             LazyColumn(
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 65.dp)
             ) {
                 // TODO: request on getting 10 tasks, sort upcoming first
-                items(tasks){
-                    task -> TaskCard(task = task){
-                        navController.navigate(
-                            TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
-                        )
+                // TODO: on empty list send request once more
+                items(tasks, key = {t -> t.id!!}){
+                    task ->
+                    SwipeToDeleteContainer(
+                        item = task,
+                        onDelete = {
+                            tasks.remove(task)
+                        }
+                    ) {
+                        task ->
+                        TaskCard(task = task) {
+                            navController.navigate(
+                                TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
+                            )
+                        }
                     }
+//                    task -> TaskCard(task = task){
+//                        navController.navigate(
+//                            TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
+//                        )
+//                    }
                 }
             }
         }

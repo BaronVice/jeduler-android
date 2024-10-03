@@ -31,14 +31,17 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookstoreapp.AppUtils.defaultDate
 import com.example.bookstoreapp.AppUtils.defaultTime
 import com.example.bookstoreapp.AppUtils.getDateFromTask
 import com.example.bookstoreapp.AppUtils.getTimeFromTask
+import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.CategoryCard
 import com.example.bookstoreapp.home.fragments.HomeButton
@@ -61,6 +64,7 @@ fun TaskViewScreen(
     firstButtonAction: (Task) -> Unit,
     navBack: () -> Unit
 ){
+    val context = LocalContext.current
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
     val dateFormater = remember { SimpleDateFormat("dd.MM.yyyy", Locale.UK) }
     val task by remember { mutableStateOf(originalTask.copy()) }
@@ -80,35 +84,11 @@ fun TaskViewScreen(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
-            var isTaskEditable by remember { mutableStateOf(false) }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Switch(
-                    checked = isTaskEditable,
-                    onCheckedChange = {
-                        isTaskEditable = it
-                    },
-                    enabled = true,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Text(
-                    text = "Editable",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily.SansSerif,
-                    fontWeight = FontWeight.Light,
-                )
-            }
 
             HomeTextField(
                 text = task.name,
                 "Name",
                 true,
-                enabled = isTaskEditable
             ){
                 task.name = it
             }
@@ -117,7 +97,6 @@ fun TaskViewScreen(
                 "Description",
                 false,
                 maxLength = 150,
-                enabled = isTaskEditable
             ){
                 task.description = it
             }
@@ -139,7 +118,6 @@ fun TaskViewScreen(
                     text = "Low",
                     color = LowPriority,
                     borderColors[2].value,
-                    enabled = isTaskEditable
                 ) {
                     task.priority = 3
                     updateBorderColors(borderColors, task.priority)
@@ -148,7 +126,6 @@ fun TaskViewScreen(
                     text = "Medium",
                     color = MediumPriority,
                     borderColors[1].value,
-                    enabled = isTaskEditable
                 ) {
                     task.priority = 2
                     updateBorderColors(borderColors, task.priority)
@@ -157,7 +134,6 @@ fun TaskViewScreen(
                     text = "High",
                     color = HighPriority,
                     borderColors[0].value,
-                    enabled = isTaskEditable
                 ) {
                     task.priority = 1
                     updateBorderColors(borderColors, task.priority)
@@ -181,7 +157,7 @@ fun TaskViewScreen(
                 modifier = Modifier.height(60.dp)
             ) {
                 items(chosen, key = {c -> c.id}){
-                    category -> CategoryCard(category, isTaskEditable){
+                    category -> CategoryCard(category){
                         chosen.removeIf { c -> c.id == category.id }
                         task.categoryIds.remove(category.id)
                         available.add(category)
@@ -202,7 +178,7 @@ fun TaskViewScreen(
                 modifier = Modifier.height(60.dp)
             ) {
                 items(available, key = {c -> c.id}){
-                    category -> CategoryCard(category, isTaskEditable){
+                    category -> CategoryCard(category){
                         available.removeIf { c -> c.id == category.id }
                         task.categoryIds.add(category.id)
                         chosen.add(category)
@@ -272,7 +248,6 @@ fun TaskViewScreen(
                     onClick = {
                         showTimePicker = true
                     },
-                    enabled = isTaskEditable,
                     modifier = Modifier.padding(horizontal = 15.dp)
                 ) {
                     Text(
@@ -289,7 +264,6 @@ fun TaskViewScreen(
                     onClick = {
                         showDatePicker = true
                     },
-                    enabled = isTaskEditable,
                     modifier = Modifier.padding(horizontal = 15.dp)
                 ) {
                     Text(
@@ -304,9 +278,26 @@ fun TaskViewScreen(
                 }
             }
 
+            Text(
+                text = "Swipe left to see subtasks",
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                fontSize = 25.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Light,
+                modifier = Modifier
+                    .padding(25.dp)
+                    .fillMaxWidth()
+            )
+
             HomeButton(text = firstButtonText) {
-                task.startsAt = "$cardDate+$cardTime"
-                firstButtonAction(task)
+                if (task.name == ""){
+                    showToast(context, "Task name cannot be empty")
+                    return@HomeButton
+                } else {
+                    task.startsAt = "$cardDate+$cardTime"
+                    firstButtonAction(task)
+                }
             }
             HomeButton(text = "To tasks") {
                 navBack()
@@ -330,11 +321,10 @@ fun PriorityButton(
     text: String,
     color: Color,
     borderColor: Color,
-    enabled: Boolean,
     onClick: () -> Unit
 ){
     Button(
-        onClick = { if (enabled) onClick() },
+        onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = color,
         ),
