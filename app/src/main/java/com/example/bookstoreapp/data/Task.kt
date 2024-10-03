@@ -1,7 +1,7 @@
 package com.example.bookstoreapp.data
 
 data class Task(
-    val id: Int,
+    var id: Int?,
     var name: String,
     var description: String,
     var taskDone: Boolean,

@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.category
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.bookstoreapp.AppUtils.checkForCategoryNameConflictOnEdit
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.getRandomCategoryName
 import com.example.bookstoreapp.AppUtils.getRandomHex
@@ -176,6 +178,10 @@ fun CategoryHolderEdit(
                         if (!focusState.isFocused) {
                             if (name.value == "") {
                                 categories.removeIf { c -> c.id == category.id }
+                            } else if (checkForCategoryNameConflictOnEdit(name.value, categories)) {
+                                Log.d("CATEGORY_NAME", name.value)
+                                name.value = getRandomCategoryName(categories)
+                                showToast(context, "Nope, already exists")
                             }
                         }
                     },

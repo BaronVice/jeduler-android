@@ -41,6 +41,7 @@ import com.example.bookstoreapp.data.Constants.STORAGE_CHILD
 import com.example.bookstoreapp.data.ImageUtils
 import com.example.bookstoreapp.graphs.HomeNavGraph
 import com.example.bookstoreapp.home.NavItemState
+import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.storage.ktx.storage
@@ -146,25 +147,6 @@ fun ActionButton(
     navController: NavHostController,
     floatingBottomState: MutableState<Boolean>
 ) {
-    val context = LocalContext.current
-    val fs = com.google.firebase.ktx.Firebase.firestore
-    val storage = com.google.firebase.ktx.Firebase.storage.reference.child( STORAGE_CHILD.s )
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-
-        val uploadImgTask = storage.child("test_img").putBytes(
-            ImageUtils.bitmapToByteArray(context, uri)
-        )
-        uploadImgTask.addOnSuccessListener { uploadTask ->
-            uploadTask.metadata?.reference?.downloadUrl?.addOnCompleteListener { uriTask ->
-                Book.saveBook(fs, uriTask.result.toString())
-            }
-        }
-    }
-
     AnimatedVisibility(
         visible = floatingBottomState.value,
         enter = slideInHorizontally(initialOffsetX = { it }),
@@ -172,12 +154,7 @@ fun ActionButton(
         content = {
             FloatingActionButton(
                 onClick = {
-                    // TODO: open addTask view
-//            launcher.launch(
-//                PickVisualMediaRequest(
-//                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-//                )
-//            )
+                    navController.navigate(TaskViewAdd)
                 },
                 shape = CircleShape,
                 containerColor = Color.Black,

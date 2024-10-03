@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.graphs
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -24,6 +25,7 @@ import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
 import com.example.bookstoreapp.home.tasks.taskview.CategoryList
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
+import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import kotlinx.coroutines.launch
@@ -40,11 +42,11 @@ fun HomeNavGraph(
 ){
     val categories = remember {
         mutableStateListOf(
-            Category(1, "Main", "#960018"),
-            Category(2, "Main", "#405919"),
-            Category(3, "Main", "#468499"),
-            Category(4, "Main", "#c77765"),
-            Category(5, "Main", "#ff80b0"),
+            Category(1, "Sweet", "#960018"),
+            Category(2, "Dreams", "#405919"),
+            Category(3, "Are", "#468499"),
+            Category(4, "Made of", "#c77765"),
+            Category(5, "This", "#ff80b0"),
         )
     }
     val tasks = remember {
@@ -232,14 +234,53 @@ fun HomeNavGraph(
             val taskView: TaskView = backStackEntry.toRoute()
 
             TaskViewScreen(
-                CategoryList(
-                    categories.toList()
-                ),
-                tasks[taskView.id],
+                data = CategoryList( categories.toList() ),
+                originalTask = tasks[taskView.id],
                 // TODO: also compare if anything has changed
                 firstButtonText = "Save",
-                firstButtonAction = {}
-//                taskView.id
+                firstButtonAction = {
+                    task ->
+                    val originalTask = tasks[taskView.id]
+                    if (task != originalTask){
+                        originalTask.name = task.name
+                        originalTask.description = task.description
+                        originalTask.priority = task.priority
+                        originalTask.categoryIds = task.categoryIds
+                        originalTask.subtasks = task.subtasks
+                        originalTask.startsAt = task.startsAt
+                        originalTask.notifyAt = task.notifyAt
+                    }
+                }
+            ) {
+                navController.popBackStack()
+                navController.navigate(Tasks)
+            }
+            bottomBarState.value = false
+            floatingBottomState.value = false
+        }
+
+        composable<TaskViewAdd> {
+            TaskViewScreen(
+                data = CategoryList( categories.toList() ),
+                originalTask = Task(
+                    null,
+                    "",
+                    "",
+                    false,
+                    2,
+                    mutableListOf(),
+                    listOf(),
+                    "",
+                    ""
+                ),
+                firstButtonText = "Add and to tasks",
+                firstButtonAction = {
+                    task -> // request on add
+                    task.id = tasks.size+1
+                    tasks.add(task)
+                    navController.popBackStack()
+                    navController.navigate(Tasks)
+                }
             ) {
                 navController.popBackStack()
                 navController.navigate(Tasks)

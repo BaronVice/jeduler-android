@@ -58,7 +58,7 @@ fun TaskViewScreen(
     data: CategoryList,
     originalTask: Task,
     firstButtonText: String,
-    firstButtonAction: () -> Unit,
+    firstButtonAction: (Task) -> Unit,
     navBack: () -> Unit
 ){
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
@@ -306,19 +306,7 @@ fun TaskViewScreen(
 
             HomeButton(text = firstButtonText) {
                 task.startsAt = "$cardDate+$cardTime"
-                if (task == originalTask){
-                    Log.d("IS_EQUAL", "Yes")
-                } else {
-                    Log.d("IS_EQUAL", cardDate)
-                    originalTask.name = task.name
-                    originalTask.description = task.description
-                    originalTask.priority = task.priority
-                    originalTask.categoryIds = task.categoryIds
-                    originalTask.subtasks = task.subtasks
-                    originalTask.startsAt = task.startsAt
-                    originalTask.notifyAt = task.notifyAt
-                }
-                firstButtonAction()
+                firstButtonAction(task)
             }
             HomeButton(text = "To tasks") {
                 navBack()
