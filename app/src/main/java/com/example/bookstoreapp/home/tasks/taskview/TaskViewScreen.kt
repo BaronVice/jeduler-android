@@ -1,7 +1,9 @@
 package com.example.bookstoreapp.home.tasks.taskview
 
 import android.util.Log
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -18,23 +21,28 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookstoreapp.AppUtils.defaultDate
@@ -50,10 +58,12 @@ import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
 import com.example.bookstoreapp.ui.theme.MediumPriority
 import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,222 +95,283 @@ fun TaskViewScreen(
                 else dateFormater.format(defaultDate().time)
             ) }
 
-            HomeTextField(
-                text = task.name,
-                "Name",
-                true,
-            ){
-                task.name = it
-            }
-            HomeTextField(
-                text = task.description,
-                "Description",
-                false,
-                maxLength = 150,
-            ){
-                task.description = it
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                val borderColors = listOf(
-                    remember { mutableStateOf(Color.Black) },
-                    remember { mutableStateOf(Color.Black) },
-                    remember { mutableStateOf(Color.Black) }
-                )
-                borderColors[task.priority-1].value = PriorityChosenBorderColor
+            var isRevealed by remember { mutableStateOf(false) }
+            val scope = rememberCoroutineScope()
 
-                PriorityButton(
-                    text = "Low",
-                    color = LowPriority,
-                    borderColors[2].value,
-                ) {
-                    task.priority = 3
-                    updateBorderColors(borderColors, task.priority)
-                }
-                PriorityButton(
-                    text = "Medium",
-                    color = MediumPriority,
-                    borderColors[1].value,
-                ) {
-                    task.priority = 2
-                    updateBorderColors(borderColors, task.priority)
-                }
-                PriorityButton(
-                    text = "High",
-                    color = HighPriority,
-                    borderColors[0].value,
-                ) {
-                    task.priority = 1
-                    updateBorderColors(borderColors, task.priority)
-                }
+            val contextMenuWidth = remember {
+                mutableFloatStateOf(0f)
+            }
+            val offset = remember {
+                Animatable(initialValue = 0f)
             }
 
-            Text(
-                text = "Chosen categories",
-                color = Color.Black,
-                fontSize = 25.sp,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp, 8.dp, 8.dp, 0.dp)
-            )
-
-            val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
-            val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
-            LazyRow(
-                modifier = Modifier.height(60.dp)
-            ) {
-                items(chosen, key = {c -> c.id}){
-                    category -> CategoryCard(category){
-                        chosen.removeIf { c -> c.id == category.id }
-                        task.categoryIds.remove(category.id)
-                        available.add(category)
-                    }
-                }
-            }
-            Text(
-                text = "Available categories",
-                color = Color.Black,
-                fontSize = 25.sp,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-            )
-            LazyRow(
-                modifier = Modifier.height(60.dp)
-            ) {
-                items(available, key = {c -> c.id}){
-                    category -> CategoryCard(category){
-                        available.removeIf { c -> c.id == category.id }
-                        task.categoryIds.add(category.id)
-                        chosen.add(category)
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
-                var showTimePicker by remember { mutableStateOf(false) }
-
-                var selectedDate: DatePickerState? by remember { mutableStateOf(null) }
-                var showDatePicker by remember { mutableStateOf(false) }
-
-                if (showTimePicker){
-                    TimePicker(
-                        onDismiss = {
-                            showTimePicker = false
-                        },
-                        onConfirm = {
-                            time ->
-                            selectedTime = time
-
-                            val cal = Calendar.getInstance()
-                            cal.set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
-                            cal.set(Calendar.MINUTE, selectedTime!!.minute)
-                            cal.isLenient = false
-
-                            cardTime = timeFormatter.format(cal.time)
-                            showTimePicker = false
-                        }
+            SwipeableItemWithActions(
+                isRevealed = isRevealed,
+                contextMenuWidth = contextMenuWidth,
+                offset = offset,
+                swipedContent = {
+                    Text(
+                        text = "SWIPED",
+                        modifier = Modifier.fillMaxWidth()
                     )
-                }
-                if (showDatePicker){
-                    DatePickerModal(
-                        onDismiss = {
-                            showDatePicker = false
-                        },
-                        onDateSelected = {
-                            date ->
-                            selectedDate = date
+                },
+                onExpanded = { isRevealed = true },
+                onCollapsed = { isRevealed = false }
+            ) {
+                Column{
+                    HomeTextField(
+                        text = task.name,
+                        "Name",
+                        true,
+                    ){
+                        task.name = it
+                    }
+                    HomeTextField(
+                        text = task.description,
+                        "Description",
+                        false,
+                        maxLength = 150,
+                    ){
+                        task.description = it
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        val borderColors = listOf(
+                            remember { mutableStateOf(Color.Black) },
+                            remember { mutableStateOf(Color.Black) },
+                            remember { mutableStateOf(Color.Black) }
+                        )
+                        borderColors[task.priority-1].value = PriorityChosenBorderColor
 
-                            cardDate = dateFormater.format(
-                                Date(selectedDate!!.selectedDateMillis!!)
+                        PriorityButton(
+                            text = "Low",
+                            color = LowPriority,
+                            borderColors[2].value,
+                        ) {
+                            task.priority = 3
+                            updateBorderColors(borderColors, task.priority)
+                        }
+                        PriorityButton(
+                            text = "Medium",
+                            color = MediumPriority,
+                            borderColors[1].value,
+                        ) {
+                            task.priority = 2
+                            updateBorderColors(borderColors, task.priority)
+                        }
+                        PriorityButton(
+                            text = "High",
+                            color = HighPriority,
+                            borderColors[0].value,
+                        ) {
+                            task.priority = 1
+                            updateBorderColors(borderColors, task.priority)
+                        }
+                    }
+
+                    Text(
+                        text = "Chosen categories",
+                        color = Color.Black,
+                        fontSize = 25.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp, 8.dp, 8.dp, 0.dp)
+                    )
+
+                    val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
+                    val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
+                    LazyRow(
+                        modifier = Modifier.height(60.dp)
+                    ) {
+                        items(chosen, key = {c -> c.id}){
+                            category ->
+                            CategoryCard(category) {
+                                chosen.removeIf { c -> c.id == category.id }
+                                task.categoryIds.remove(category.id)
+                                available.add(category)
+                            }
+                        }
+                    }
+                    Text(
+                        text = "Available categories",
+                        color = Color.Black,
+                        fontSize = 25.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                    )
+                    LazyRow(
+                        modifier = Modifier.height(60.dp).padding(horizontal = 6.dp)
+                    ) {
+                        items(available, key = {c -> c.id}) { category ->
+                            CategoryCard(category) {
+                                available.removeIf { c -> c.id == category.id }
+                                task.categoryIds.add(category.id)
+                                chosen.add(category)
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
+                        var showTimePicker by remember { mutableStateOf(false) }
+
+                        var selectedDate: DatePickerState? by remember { mutableStateOf(null) }
+                        var showDatePicker by remember { mutableStateOf(false) }
+
+                        if (showTimePicker){
+                            TimePicker(
+                                onDismiss = {
+                                    showTimePicker = false
+                                },
+                                onConfirm = {
+                                        time ->
+                                    selectedTime = time
+
+                                    val cal = Calendar.getInstance()
+                                    cal.set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
+                                    cal.set(Calendar.MINUTE, selectedTime!!.minute)
+                                    cal.isLenient = false
+
+                                    cardTime = timeFormatter.format(cal.time)
+                                    showTimePicker = false
+                                }
                             )
-                            showDatePicker = false
                         }
-                    )
+                        if (showDatePicker){
+                            DatePickerModal(
+                                onDismiss = {
+                                    showDatePicker = false
+                                },
+                                onDateSelected = {
+                                        date ->
+                                    selectedDate = date
+
+                                    cardDate = dateFormater.format(
+                                        Date(selectedDate!!.selectedDateMillis!!)
+                                    )
+                                    showDatePicker = false
+                                }
+                            )
+                        }
+
+
+                        Text(
+                            text = "Starts at ",
+                            color = Color.Black,
+                            fontSize = 25.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Light
+                        )
+
+                        OutlinedCard(
+                            onClick = {
+                                showTimePicker = true
+                            },
+                            modifier = Modifier.padding(horizontal = 15.dp)
+                        ) {
+                            Text(
+                                text = cardTime,
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.SansSerif,
+                                fontWeight = FontWeight.Light,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                            )
+                        }
+                        OutlinedCard(
+                            onClick = {
+                                showDatePicker = true
+                            },
+                            modifier = Modifier.padding(horizontal = 15.dp)
+                        ) {
+                            Text(
+                                text = cardDate,
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.SansSerif,
+                                fontWeight = FontWeight.Light,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                            )
+                        }
+                    }
                 }
+            }
 
+            Column{
+                Surface(
+                    modifier = Modifier
+                        .pointerInput(contextMenuWidth) {
+                            detectHorizontalDragGestures(
+                                onHorizontalDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        val newOffset = (offset.value + dragAmount)
+                                            .coerceIn(0f, contextMenuWidth.floatValue)
+                                        offset.snapTo(newOffset)
+                                    }
+                                },
+                                onDragEnd = {
+                                    when {
+                                        offset.value >= contextMenuWidth.floatValue / 2f -> {
+                                            scope.launch {
+                                                offset.animateTo(contextMenuWidth.floatValue)
+                                                isRevealed = true
+                                            }
+                                        }
 
-                Text(
-                    text = "Starts at ",
-                    color = Color.Black,
-                    fontSize = 25.sp,
-                    fontFamily = FontFamily.SansSerif,
-                    fontWeight = FontWeight.Light
-                )
-
-                OutlinedCard(
-                    onClick = {
-                        showTimePicker = true
-                    },
-                    modifier = Modifier.padding(horizontal = 15.dp)
-                ) {
+                                        else -> {
+                                            scope.launch {
+                                                offset.animateTo(0f)
+                                                isRevealed = false
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                ){
                     Text(
-                        text = cardTime,
-                        color = Color.Black,
-                        fontSize = 20.sp,
+                        text = if (!isRevealed) "Swipe me right to see subtasks"
+                        else "Swipe me left to see task",
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        fontSize = 25.sp,
                         fontFamily = FontFamily.SansSerif,
                         fontWeight = FontWeight.Light,
                         modifier = Modifier
-                            .padding(10.dp)
+                            .padding(vertical = 25.dp, horizontal = 10.dp)
+                            .fillMaxWidth()
                     )
                 }
-                OutlinedCard(
-                    onClick = {
-                        showDatePicker = true
-                    },
-                    modifier = Modifier.padding(horizontal = 15.dp)
-                ) {
-                    Text(
-                        text = cardDate,
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Light,
-                        modifier = Modifier
-                            .padding(10.dp)
-                    )
+                HomeButton(text = firstButtonText) {
+                    if (task.name == ""){
+                        showToast(context, "Task name cannot be empty")
+                        return@HomeButton
+                    } else {
+                        task.startsAt = "$cardDate+$cardTime"
+                        firstButtonAction(task)
+                    }
                 }
-            }
-
-            Text(
-                text = "Swipe left to see subtasks",
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                fontSize = 25.sp,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier
-                    .padding(25.dp)
-                    .fillMaxWidth()
-            )
-
-            HomeButton(text = firstButtonText) {
-                if (task.name == ""){
-                    showToast(context, "Task name cannot be empty")
-                    return@HomeButton
-                } else {
-                    task.startsAt = "$cardDate+$cardTime"
-                    firstButtonAction(task)
+                HomeButton(text = "To tasks") {
+                    navBack()
                 }
-            }
-            HomeButton(text = "To tasks") {
-                navBack()
             }
         }
     }
