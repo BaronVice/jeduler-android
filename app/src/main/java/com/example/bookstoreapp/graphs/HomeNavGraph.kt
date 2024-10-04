@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.bookstoreapp.data.Category
+import com.example.bookstoreapp.data.Subtask
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.account.Account
 import com.example.bookstoreapp.home.account.AccountScreen
@@ -57,8 +58,39 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
                 listOf(),
+                listOf(
+                    Subtask(
+                        "Just",
+                        true,
+                        0
+                    ),
+                    Subtask(
+                        "Leave",
+                        true,
+                        0
+                    ),
+                    Subtask(
+                        "Me",
+                        true,
+                        0
+                    ),
+                    Subtask(
+                        "Out",
+                        true,
+                        0
+                    ),
+                    Subtask(
+                        "To",
+                        true,
+                        0
+                    ),
+                    Subtask(
+                        "Dry",
+                        true,
+                        0
+                    )
+                ),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
             ),
@@ -68,7 +100,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -79,7 +111,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -90,7 +122,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -101,7 +133,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -112,7 +144,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -123,7 +155,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -134,7 +166,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -145,7 +177,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"
@@ -156,7 +188,7 @@ fun HomeNavGraph(
                 "Aboba",
                 Random.nextBoolean(),
                 Random.nextInt(1,4).toShort(),
-                mutableListOf(),
+                listOf(),
                 listOf(),
                 "22.10.2024+09:07",
                 "22.10.2024+09:07"

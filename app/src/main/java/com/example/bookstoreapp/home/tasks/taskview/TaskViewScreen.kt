@@ -94,6 +94,8 @@ fun TaskViewScreen(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
+            val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
+            val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
 
             var isRevealed by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
@@ -109,14 +111,12 @@ fun TaskViewScreen(
                 isRevealed = isRevealed,
                 contextMenuWidth = contextMenuWidth,
                 offset = offset,
+                modifier = Modifier.weight(0.75f),
                 swipedContent = {
-                    Text(
-                        text = "SWIPED",
-                        modifier = Modifier.fillMaxWidth()
+                    SubtasksView(
+                        task = task
                     )
-                },
-                onExpanded = { isRevealed = true },
-                onCollapsed = { isRevealed = false }
+                }
             ) {
                 Column{
                     HomeTextField(
@@ -185,8 +185,6 @@ fun TaskViewScreen(
                             .padding(8.dp, 8.dp, 8.dp, 0.dp)
                     )
 
-                    val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
-                    val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
                     LazyRow(
                         modifier = Modifier.height(60.dp)
                     ) {
@@ -194,7 +192,7 @@ fun TaskViewScreen(
                             category ->
                             CategoryCard(category) {
                                 chosen.removeIf { c -> c.id == category.id }
-                                task.categoryIds.remove(category.id)
+//                                task.categoryIds.remove(category.id)
                                 available.add(category)
                             }
                         }
@@ -215,7 +213,7 @@ fun TaskViewScreen(
                         items(available, key = {c -> c.id}) { category ->
                             CategoryCard(category) {
                                 available.removeIf { c -> c.id == category.id }
-                                task.categoryIds.add(category.id)
+//                                task.categoryIds.add(category.id)
                                 chosen.add(category)
                             }
                         }
@@ -366,6 +364,8 @@ fun TaskViewScreen(
                         return@HomeButton
                     } else {
                         task.startsAt = "$cardDate+$cardTime"
+                        task.categoryIds = chosen.map { c -> c.id }.toList()
+
                         firstButtonAction(task)
                     }
                 }
