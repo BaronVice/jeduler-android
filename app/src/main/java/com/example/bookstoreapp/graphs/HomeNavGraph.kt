@@ -63,32 +63,32 @@ fun HomeNavGraph(
                     Subtask(
                         "Just",
                         true,
-                        0
+                        1
                     ),
                     Subtask(
                         "Leave",
                         true,
-                        0
+                        2
                     ),
                     Subtask(
                         "Me",
                         true,
-                        0
+                        3
                     ),
                     Subtask(
                         "Out",
                         true,
-                        0
+                        4
                     ),
                     Subtask(
                         "To",
                         true,
-                        0
+                        5
                     ),
                     Subtask(
                         "Dry",
                         true,
-                        0
+                        6
                     )
                 ),
                 "22.10.2024+09:07",

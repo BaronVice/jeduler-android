@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,13 +19,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
+import com.example.bookstoreapp.data.Subtask
 import kotlinx.coroutines.channels.Channel
 
 
-inline fun <T : Any> LazyListScope.draggableItems(
-    items: List<T>,
+inline fun LazyListScope.draggableItems(
+    items: List<Subtask>,
     dragDropState: DragDropState,
-    crossinline content: @Composable (Modifier, T) -> Unit,
+    crossinline content: @Composable (Modifier, Subtask) -> Unit,
 ) {
     itemsIndexed(
         items = items,
@@ -39,7 +41,13 @@ inline fun <T : Any> LazyListScope.draggableItems(
         } else {
             Modifier
         }
-        content(modifier, item)
+
+        val movableContent = movableContentOf {
+            content(modifier, item)
+        }
+        movableContent()
+
+        // content(modifier, item)
     }
 }
 

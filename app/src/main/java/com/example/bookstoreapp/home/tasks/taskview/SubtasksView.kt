@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.tasks.taskview
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,12 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,28 +39,27 @@ fun SubtasksView(
 ){
     Column {
         var subtasks = remember { task.subtasks.toMutableStateList() }
+        var isDone by remember { mutableStateOf(task.taskDone) }
+        var cbText by remember { mutableStateOf(
+            if (isDone) "Completed" else "Unfinished"
+        ) }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ){
-            var isDone by remember { mutableStateOf(task.taskDone) }
-            var cbText by remember { mutableStateOf(
-                if (isDone) "Completed" else "Unfinished"
-            ) }
-
             Checkbox(
                 checked = isDone,
                 onCheckedChange = { checked ->
                     isDone = checked
-                    if (checked) {
-                        cbText = "Completed"
-                        subtasks.forEach { s -> s.isCompleted = true }
-                    } else {
-                        cbText = "Unfinished"
-                        subtasks.last().isCompleted = false
-                    }
-                }
+                    cbText = if (checked) "Completed" else "Unfinished"
+                },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Black,
+                    uncheckedColor = Color.Black,
+                    checkmarkColor = Color.White
+                )
             )
             Text(
                 text = cbText,
@@ -78,7 +81,8 @@ fun SubtasksView(
                 draggableItemsNum = draggableItems,
                 onMove = { fromIndex, toIndex ->
                     subtasks = subtasks.apply { add(toIndex, removeAt(fromIndex)) }
-                })
+                }
+            )
 
         LazyColumn(
             modifier = Modifier.dragContainer(dragDropState),
@@ -86,11 +90,30 @@ fun SubtasksView(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            draggableItems(items = subtasks, dragDropState = dragDropState) { modifier, item ->
-                Item(
+
+            draggableItems(
+                items = subtasks,
+                dragDropState = dragDropState
+            ) {
+                modifier, subtask ->
+                SubtaskCard(
                     modifier = modifier,
-                    subtask = item,
-                )
+                    subtask = subtask,
+                    isDone = isDone,
+                    lastSubtaskKey = { subtasks.last().orderInList },
+                    allDone = { subtasks.all { s -> s.isCompleted } }
+                ){
+                    checked ->
+                    if (checked) {
+                        if (subtasks.all { s -> s.isCompleted }) {
+                            isDone = true
+                            cbText = "Completed"
+                        }
+                    } else {
+                        isDone = false
+                        cbText = "Unfinished"
+                    }
+                }
             }
 
         }
@@ -98,15 +121,56 @@ fun SubtasksView(
 }
 
 @Composable
-private fun Item(modifier: Modifier = Modifier, subtask: Subtask) {
+private fun SubtaskCard(
+    modifier: Modifier = Modifier,
+    subtask: Subtask,
+    isDone: Boolean,
+    lastSubtaskKey: () -> Short,
+    allDone: () -> Boolean,
+    onCheckBoxClick: (Boolean) -> Unit
+) {
+    var name by remember { mutableStateOf(subtask.name) }
+    var isCompleted by remember { mutableStateOf(subtask.isCompleted) }
+
+    LaunchedEffect(key1 = isDone) {
+        if (isDone){
+            isCompleted = true
+            subtask.isCompleted = true
+        } else {
+            if (subtask.orderInList == lastSubtaskKey() && allDone()){
+                isCompleted = false
+                subtask.isCompleted = false
+            }
+        }
+    }
+
     Card(
         modifier = modifier
     ) {
         Text(
-            "${subtask.name} ${subtask.isCompleted} ${subtask.orderInList}",
+            text = name,
+            color = Color.Black,
+            fontSize = 20.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Light,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(20.dp, 20.dp, 0.dp, 0.dp)
+        )
+        Checkbox(
+            checked = isCompleted,
+            onCheckedChange = {
+                isCompleted = it
+                subtask.isCompleted = it
+                onCheckBoxClick(isCompleted)
+            },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Color.Black,
+                uncheckedColor = Color.Black,
+                checkmarkColor = Color.White
+            ),
+            modifier = Modifier
+                .align(Alignment.End)
         )
     }
 }
