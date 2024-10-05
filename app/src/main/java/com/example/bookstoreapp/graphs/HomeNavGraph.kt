@@ -278,6 +278,7 @@ fun HomeNavGraph(
                         originalTask.description = task.description
                         originalTask.priority = task.priority
                         originalTask.categoryIds = task.categoryIds
+                        originalTask.taskDone = task.taskDone
                         originalTask.subtasks = task.subtasks
                         originalTask.startsAt = task.startsAt
                         originalTask.notifyAt = task.notifyAt

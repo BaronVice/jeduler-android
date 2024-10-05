@@ -1,6 +1,5 @@
 package com.example.bookstoreapp.home.tasks.taskview
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -22,7 +20,6 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
@@ -42,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookstoreapp.AppUtils.defaultDate
@@ -54,6 +50,8 @@ import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.CategoryCard
 import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.fragments.HomeTextField
+import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksCarrier
+import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksView
 import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
 import com.example.bookstoreapp.ui.theme.MediumPriority
@@ -63,7 +61,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +91,8 @@ fun TaskViewScreen(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
+            var subtasks = remember { task.subtasks.toMutableStateList() }
+
             val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
             val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
 
@@ -114,7 +113,10 @@ fun TaskViewScreen(
                 modifier = Modifier.weight(0.75f),
                 swipedContent = {
                     SubtasksView(
-                        task = task
+                        task = task,
+                        SubtasksCarrier(
+                            subtasks
+                        )
                     )
                 }
             ) {
@@ -186,7 +188,7 @@ fun TaskViewScreen(
                     )
 
                     LazyRow(
-                        modifier = Modifier.height(60.dp)
+                        modifier = Modifier.height(60.dp).padding(horizontal = 6.dp)
                     ) {
                         items(chosen, key = {c -> c.id}){
                             category ->
@@ -222,7 +224,7 @@ fun TaskViewScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),
+                            .padding(10.dp, 20.dp, 10.dp, 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
@@ -363,7 +365,8 @@ fun TaskViewScreen(
                         showToast(context, "Task name cannot be empty")
                         return@HomeButton
                     } else {
-                        task.startsAt = "$cardDate+$cardTime"
+                        task.startsAt = "$cardDate+$cardTime" // todo: check if not past?
+                        task.subtasks = subtasks.toList()
                         task.categoryIds = chosen.map { c -> c.id }.toList()
 
                         firstButtonAction(task)

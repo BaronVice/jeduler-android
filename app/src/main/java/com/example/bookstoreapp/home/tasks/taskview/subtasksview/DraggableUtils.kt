@@ -1,4 +1,4 @@
-package com.example.bookstoreapp.home.tasks.taskview
+package com.example.bookstoreapp.home.tasks.taskview.subtasksview
 
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy

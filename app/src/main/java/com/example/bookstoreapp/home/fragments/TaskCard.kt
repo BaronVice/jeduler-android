@@ -107,7 +107,6 @@ fun TaskCard(
                     fontFamily = FontFamily.SansSerif,
                     fontWeight = FontWeight.Light,
                 )
-
             }
         }
     }

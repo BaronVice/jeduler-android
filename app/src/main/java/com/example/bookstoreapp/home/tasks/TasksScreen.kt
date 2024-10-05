@@ -96,11 +96,6 @@ fun TasksScreen(
                             )
                         }
                     }
-//                    task -> TaskCard(task = task){
-//                        navController.navigate(
-//                            TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
-//                        )
-//                    }
                 }
             }
         }

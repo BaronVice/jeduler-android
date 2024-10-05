@@ -178,9 +178,9 @@ fun CategoryHolderEdit(
                             if (name.value == "") {
                                 categories.removeIf { c -> c.id == category.id }
                             } else if (isCategoryNameUnique(name.value, categories)) {
-                                category.name = name.value
                                 if (!isCategoryNameUnique(name.value.trim(), categories))
                                     showToast(context, "Sure. I'm not a policeman to stop you.")
+                                category.name = name.value
                             } else if (name.value != category.name) {
                                 name.value = category.name
                                 showToast(context, "Nope, already exists")
