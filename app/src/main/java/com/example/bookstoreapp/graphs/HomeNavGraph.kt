@@ -24,6 +24,7 @@ import com.example.bookstoreapp.home.tasks.Tasks
 import com.example.bookstoreapp.home.tasks.TasksScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
+import com.example.bookstoreapp.home.search.SearchScreen
 import com.example.bookstoreapp.home.tasks.taskview.CategoryList
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
@@ -213,10 +214,7 @@ fun HomeNavGraph(
         }
 
         composable<Search>{
-            ScreenContent(
-                name = "Search",
-                onClick = {}
-            )
+            SearchScreen(categoryList = CategoryList(categories.toList()))
             bottomBarState.value = true
             floatingBottomState.value = false
         }

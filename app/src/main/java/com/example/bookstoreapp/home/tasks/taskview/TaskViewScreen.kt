@@ -48,6 +48,7 @@ import com.example.bookstoreapp.AppUtils.getTimeFromTask
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.CategoryCard
+import com.example.bookstoreapp.home.fragments.DateTimeRow
 import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.fragments.HomeTextField
 import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksCarrier
@@ -83,11 +84,11 @@ fun TaskViewScreen(
         contentAlignment = Alignment.Center
     ){
         Column{
-            var cardTime by remember { mutableStateOf(
+            val cardTime = remember { mutableStateOf(
                 if (task.startsAt != "") getTimeFromTask(task.startsAt)
                 else timeFormatter.format(defaultTime().time)
             ) }
-            var cardDate by remember { mutableStateOf(
+            val cardDate = remember { mutableStateOf(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
@@ -188,7 +189,9 @@ fun TaskViewScreen(
                     )
 
                     LazyRow(
-                        modifier = Modifier.height(60.dp).padding(horizontal = 6.dp)
+                        modifier = Modifier
+                            .height(60.dp)
+                            .padding(horizontal = 6.dp)
                     ) {
                         items(chosen, key = {c -> c.id}){
                             category ->
@@ -210,7 +213,9 @@ fun TaskViewScreen(
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     )
                     LazyRow(
-                        modifier = Modifier.height(60.dp).padding(horizontal = 6.dp)
+                        modifier = Modifier
+                            .height(60.dp)
+                            .padding(horizontal = 6.dp)
                     ) {
                         items(available, key = {c -> c.id}) { category ->
                             CategoryCard(category) {
@@ -221,97 +226,7 @@ fun TaskViewScreen(
                         }
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp, 20.dp, 10.dp, 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
-                        var showTimePicker by remember { mutableStateOf(false) }
-
-                        var selectedDate: DatePickerState? by remember { mutableStateOf(null) }
-                        var showDatePicker by remember { mutableStateOf(false) }
-
-                        if (showTimePicker){
-                            TimePicker(
-                                onDismiss = {
-                                    showTimePicker = false
-                                },
-                                onConfirm = {
-                                        time ->
-                                    selectedTime = time
-
-                                    val cal = Calendar.getInstance()
-                                    cal.set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
-                                    cal.set(Calendar.MINUTE, selectedTime!!.minute)
-                                    cal.isLenient = false
-
-                                    cardTime = timeFormatter.format(cal.time)
-                                    showTimePicker = false
-                                }
-                            )
-                        }
-                        if (showDatePicker){
-                            DatePickerModal(
-                                onDismiss = {
-                                    showDatePicker = false
-                                },
-                                onDateSelected = {
-                                        date ->
-                                    selectedDate = date
-
-                                    cardDate = dateFormater.format(
-                                        Date(selectedDate!!.selectedDateMillis!!)
-                                    )
-                                    showDatePicker = false
-                                }
-                            )
-                        }
-
-
-                        Text(
-                            text = "Starts at ",
-                            color = Color.Black,
-                            fontSize = 25.sp,
-                            fontFamily = FontFamily.SansSerif,
-                            fontWeight = FontWeight.Light
-                        )
-
-                        OutlinedCard(
-                            onClick = {
-                                showTimePicker = true
-                            },
-                            modifier = Modifier.padding(horizontal = 15.dp)
-                        ) {
-                            Text(
-                                text = cardTime,
-                                color = Color.Black,
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Light,
-                                modifier = Modifier
-                                    .padding(10.dp)
-                            )
-                        }
-                        OutlinedCard(
-                            onClick = {
-                                showDatePicker = true
-                            },
-                            modifier = Modifier.padding(horizontal = 15.dp)
-                        ) {
-                            Text(
-                                text = cardDate,
-                                color = Color.Black,
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Light,
-                                modifier = Modifier
-                                    .padding(10.dp)
-                            )
-                        }
-                    }
+                    DateTimeRow(text = "Starts at", cardTime = cardTime, cardDate = cardDate)
                 }
             }
 
@@ -365,7 +280,7 @@ fun TaskViewScreen(
                         showToast(context, "Task name cannot be empty")
                         return@HomeButton
                     } else {
-                        task.startsAt = "$cardDate+$cardTime" // todo: check if not past?
+                        task.startsAt = "${cardDate.value}+${cardTime.value}"
                         task.subtasks = subtasks.toList()
                         task.categoryIds = chosen.map { c -> c.id }.toList()
 
@@ -387,7 +302,7 @@ fun updateBorderColors(
     for (c in colors){
         c.value = Color.Black
     }
-    colors[priority-1].value = PriorityChosenBorderColor
+    if (priority != 0.toShort()) colors[priority-1].value = PriorityChosenBorderColor
 }
 
 @Composable

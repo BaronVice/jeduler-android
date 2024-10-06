@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.tasks
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -47,6 +49,12 @@ fun TasksScreen(
             .fillMaxSize()
             .padding(horizontal = 4.dp, vertical = 20.dp),
     ) {
+        LaunchedEffect(key1 = tasks.size) {
+            if (tasks.size == 0){
+                Log.d("APP_REQUESTS", "Send request")
+            }
+        }
+
         Column {
             LazyRow(
                 modifier = Modifier.clickable(

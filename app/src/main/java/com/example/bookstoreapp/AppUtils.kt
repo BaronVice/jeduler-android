@@ -38,6 +38,17 @@ object AppUtils {
         ).show()
     }
 
+    fun timeNow(): Calendar {
+        val currentTime = Calendar.getInstance()
+        currentTime.isLenient = false
+        return currentTime
+    }
+    fun dateNow(): Calendar {
+        val currentTime = Calendar.getInstance()
+        currentTime.isLenient = false
+        return currentTime
+    }
+
     fun defaultTime(): Calendar {
         val currentTime = Calendar.getInstance()
         currentTime.isLenient = false
