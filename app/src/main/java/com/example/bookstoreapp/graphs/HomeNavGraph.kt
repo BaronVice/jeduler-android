@@ -5,17 +5,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.bookstoreapp.RequestsUtils.getTasks
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Subtask
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.account.Account
 import com.example.bookstoreapp.home.account.AccountScreen
-import com.example.bookstoreapp.home.ScreenContent
 import com.example.bookstoreapp.home.category.Categories
 import com.example.bookstoreapp.home.category.CategoriesScreen
 import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
@@ -25,6 +26,8 @@ import com.example.bookstoreapp.home.tasks.TasksScreen
 import com.example.bookstoreapp.login.navroots.Auth
 import com.example.bookstoreapp.home.search.Search
 import com.example.bookstoreapp.home.search.SearchScreen
+import com.example.bookstoreapp.home.search.result.SearchResult
+import com.example.bookstoreapp.home.search.result.SearchResultScreen
 import com.example.bookstoreapp.home.tasks.taskview.CategoryList
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
@@ -51,151 +54,7 @@ fun HomeNavGraph(
             Category(5, "This", "#ff80b0"),
         )
     }
-    val tasks = remember {
-        mutableStateListOf(
-            Task(
-                1,
-                "Weird1",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(
-                    Subtask(
-                        "Just",
-                        true,
-                        1
-                    ),
-                    Subtask(
-                        "Leave",
-                        true,
-                        2
-                    ),
-                    Subtask(
-                        "Me",
-                        true,
-                        3
-                    ),
-                    Subtask(
-                        "Out",
-                        true,
-                        4
-                    ),
-                    Subtask(
-                        "To",
-                        true,
-                        5
-                    ),
-                    Subtask(
-                        "Dry",
-                        true,
-                        6
-                    )
-                ),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                2,
-                "Weird2",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                3,
-                "Weird3",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                4,
-                "Weird4",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                5,
-                "Weird5",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                6,
-                "Weird6",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                7,
-                "Weird7",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                8,
-                "Weird8",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                9,
-                "Weird9",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            ),
-            Task(
-                10,
-                "Weird10",
-                "Aboba",
-                Random.nextBoolean(),
-                Random.nextInt(1,4).toShort(),
-                listOf(),
-                listOf(),
-                "22.10.2024+09:07",
-                "22.10.2024+09:07"
-            )
-        )
-    }
+    val tasks = remember { getTasks("").toMutableStateList() }
 
     NavHost(
         navController = navController,
@@ -203,20 +62,51 @@ fun HomeNavGraph(
     ) {
         composable<Tasks>{
             TasksScreen(
-                navController,
                 categories,
-                tasks
-            ){
-                navController.navigate(Categories)
-            }
+                tasks,
+                onTaskClick = {
+                    id -> navController.navigate(
+                        TaskView(tasks.indexOfFirst { t -> t.id == id }, "")
+                    )
+                },
+                onCategoriesClick = {
+                    navController.popBackStack()
+                    navController.navigate(Categories)
+                }
+            )
+
             bottomBarState.value = true
             floatingBottomState.value = true
         }
 
         composable<Search>{
-            SearchScreen(categoryList = CategoryList(categories.toList()))
+            SearchScreen(
+                categoryList = CategoryList(categories.toList())
+            ){
+                s -> navController.navigate(SearchResult(s))
+            }
             bottomBarState.value = true
             floatingBottomState.value = false
+        }
+
+        composable<SearchResult> {
+            backStackEntry ->
+            val searchResult: SearchResult = backStackEntry.toRoute()
+
+            SearchResultScreen(
+                url = searchResult.url,
+                onTaskClick = {
+                    id -> navController.navigate(
+                        TaskView(tasks.indexOfFirst { t -> t.id == id }, searchResult.url)
+                    )
+                },
+                onNavBack = {
+                    navController.popBackStack()
+                    navController.navigate(Search)
+                }
+            )
+
+            bottomBarState.value = false
         }
 
         composable<Account>{
@@ -284,7 +174,11 @@ fun HomeNavGraph(
                 }
             ) {
                 navController.popBackStack()
-                navController.navigate(Tasks)
+                if (taskView.url == ""){
+                    navController.navigate(Tasks)
+                } else {
+                    navController.navigate(SearchResult(taskView.url))
+                }
             }
             bottomBarState.value = false
             floatingBottomState.value = false

@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TaskView(
-    val id: Int
+    val id: Int,
+    val url: String
 )

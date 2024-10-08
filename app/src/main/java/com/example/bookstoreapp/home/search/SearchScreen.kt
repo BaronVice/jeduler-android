@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.search
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import com.example.bookstoreapp.AppUtils.getDateFromTask
 import com.example.bookstoreapp.AppUtils.getTimeFromTask
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.AppUtils.timeNow
+import com.example.bookstoreapp.RequestsUtils.buildSearchRequest
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.CategoryCard
@@ -67,7 +69,8 @@ import java.util.Locale
 
 @Composable
 fun SearchScreen(
-    categoryList: CategoryList
+    categoryList: CategoryList,
+    onSearch: (String) -> Unit
 ){
     val context = LocalContext.current
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
@@ -216,10 +219,18 @@ fun SearchScreen(
             Spacer(modifier = Modifier.padding(15.dp))
             HomeButton(text = "Search") {
                 // if (datesNotIntersecting)
-                // task.startsAt = "${cardDate.value}+${cardTime.value}"
 
                 task.categoryIds = chosen.map { c -> c.id }.toList()
-                // search(StringRequest)
+                val s = buildSearchRequest(
+                    name = task.name,
+                    priority = task.priority,
+                    categoryIds = task.categoryIds,
+                    from = "${cardDateStart.value}+${cardTimeStart.value}",
+                    to = "${cardDateEnd.value}+${cardTimeEnd.value}",
+                    isCompleted = taskDone.value,
+                    sortBy = sortBy.value
+                )
+                onSearch(s)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.fragments
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HomeButton(
     text: String,
+    fillMaxWidth: Boolean = true,
     onClick: () -> Unit
 ){
     Button(
@@ -31,7 +33,7 @@ fun HomeButton(
         elevation = ButtonDefaults.elevatedButtonElevation(10.dp),
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth()
+            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
     ) {
         Text(
             text = text,

@@ -64,7 +64,6 @@ object AppUtils {
         return currentTime
     }
 
-
     fun getTimeFromTask(date: String) = date.split("+")[1]
     fun getDateFromTask(date: String) = date.split("+")[0]
 

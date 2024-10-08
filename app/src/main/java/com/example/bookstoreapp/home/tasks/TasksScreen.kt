@@ -19,8 +19,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
+import com.example.bookstoreapp.RequestsUtils.getTasks
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
@@ -39,9 +42,9 @@ import com.example.bookstoreapp.home.tasks.taskview.TaskView
 
 @Composable
 fun TasksScreen(
-    navController: NavHostController,
     categories: SnapshotStateList<Category>,
     tasks: SnapshotStateList<Task>,
+    onTaskClick: (Int) -> Unit,
     onCategoriesClick: () -> Unit
 ) {
     Box(
@@ -52,6 +55,7 @@ fun TasksScreen(
         LaunchedEffect(key1 = tasks.size) {
             if (tasks.size == 0){
                 Log.d("APP_REQUESTS", "Send request")
+                tasks.addAll(getTasks("").toMutableStateList())
             }
         }
 
@@ -87,23 +91,24 @@ fun TasksScreen(
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 65.dp)
             ) {
-                // TODO: request on getting 10 tasks, sort upcoming first
-                // TODO: on empty list send request once more
-                items(tasks, key = {t -> t.id!!}){
+                // TODO: still buggy at list update, have to replace with key in items
+                items(tasks){
                     task ->
-                    SwipeToDeleteContainer(
-                        item = task,
-                        onDelete = {
-                            tasks.remove(task)
-                        }
-                    ) {
-                        task ->
-                        TaskCard(task = task) {
-                            navController.navigate(
-                                TaskView(tasks.indexOfFirst { t -> t.id == task.id } )
-                            )
+                    val movableContent = movableContentOf {
+                        SwipeToDeleteContainer(
+                            item = task,
+                            onDelete = {
+                                tasks.remove(task)
+                            }
+                        ) {
+                                t ->
+                            TaskCard(task = t) {
+                                onTaskClick(t.id!!)
+                            }
                         }
                     }
+
+                    movableContent()
                 }
             }
         }

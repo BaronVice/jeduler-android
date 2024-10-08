@@ -50,6 +50,7 @@ import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.CategoryCard
 import com.example.bookstoreapp.home.fragments.DateTimeRow
 import com.example.bookstoreapp.home.fragments.HomeButton
+import com.example.bookstoreapp.home.fragments.HomeText
 import com.example.bookstoreapp.home.fragments.HomeTextField
 import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksCarrier
 import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksView
@@ -92,7 +93,7 @@ fun TaskViewScreen(
                 if (task.startsAt != "") getDateFromTask(task.startsAt)
                 else dateFormater.format(defaultDate().time)
             ) }
-            var subtasks = remember { task.subtasks.toMutableStateList() }
+            val subtasks = remember { task.subtasks.toMutableStateList() }
 
             val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
             val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
@@ -177,12 +178,8 @@ fun TaskViewScreen(
                         }
                     }
 
-                    Text(
+                    HomeText(
                         text = "Chosen categories",
-                        color = Color.Black,
-                        fontSize = 25.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Light,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp, 8.dp, 8.dp, 0.dp)
@@ -197,17 +194,12 @@ fun TaskViewScreen(
                             category ->
                             CategoryCard(category) {
                                 chosen.removeIf { c -> c.id == category.id }
-//                                task.categoryIds.remove(category.id)
                                 available.add(category)
                             }
                         }
                     }
-                    Text(
+                    HomeText(
                         text = "Available categories",
-                        color = Color.Black,
-                        fontSize = 25.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Light,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
