@@ -16,15 +16,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,20 +53,19 @@ import com.example.bookstoreapp.home.fragments.HomeText
 import com.example.bookstoreapp.home.fragments.HomeTextField
 import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksCarrier
 import com.example.bookstoreapp.home.tasks.taskview.subtasksview.SubtasksView
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
 import com.example.bookstoreapp.ui.theme.MediumPriority
 import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskViewScreen(
-    data: CategoryList,
+    api: ApiViewModel,
     originalTask: Task,
     firstButtonText: String,
     firstButtonAction: (Task) -> Unit,
@@ -77,6 +75,11 @@ fun TaskViewScreen(
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
     val dateFormater = remember { SimpleDateFormat("dd.MM.yyyy", Locale.UK) }
     val task by remember { mutableStateOf(originalTask.copy()) }
+
+    val categories by api.categories.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        api.fetchCategories()
+    }
 
     Box(
         modifier = Modifier
@@ -95,8 +98,8 @@ fun TaskViewScreen(
             ) }
             val subtasks = remember { task.subtasks.toMutableStateList() }
 
-            val chosen = remember { data.categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
-            val available = remember { data.categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
+            val chosen = remember { categories.filter { c -> c.id in task.categoryIds }.toMutableStateList() }
+            val available = remember { categories.filterNot { c -> c.id in task.categoryIds }.toMutableStateList() }
 
             var isRevealed by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()

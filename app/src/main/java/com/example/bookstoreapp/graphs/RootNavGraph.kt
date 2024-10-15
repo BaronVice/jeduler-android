@@ -25,10 +25,12 @@ import com.example.bookstoreapp.login.navroots.Login
 import com.example.bookstoreapp.login.LoginScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
 import com.example.bookstoreapp.login.google.SignInViewModel
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun RootNavigationGraph(
+    api: ApiViewModel,
     googleAuthUiClient: GoogleAuthUiClient,
     navController: NavHostController,
     lifecycleScope: LifecycleCoroutineScope
@@ -98,6 +100,7 @@ fun RootNavigationGraph(
 
         composable<Home>{
             HomeScreen(
+                api,
                 googleAuthUiClient,
                 lifecycleScope,
                 navController

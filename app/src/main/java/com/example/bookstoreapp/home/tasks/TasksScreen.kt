@@ -19,6 +19,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -30,23 +32,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.RequestsUtils.getTasks
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
+import com.example.bookstoreapp.home.fragments.HomeText
 import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
 import com.example.bookstoreapp.home.fragments.TaskCard
-import com.example.bookstoreapp.home.tasks.taskview.TaskView
+import com.example.bookstoreapp.retrofit.ApiViewModel
 
 @Composable
 fun TasksScreen(
-    categories: SnapshotStateList<Category>,
+    api: ApiViewModel,
     tasks: SnapshotStateList<Task>,
     onTaskClick: (Int) -> Unit,
     onCategoriesClick: () -> Unit
 ) {
+    val categories by api.categories.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        api.fetchCategories()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -60,16 +67,20 @@ fun TasksScreen(
         }
 
         Column {
-            LazyRow(
-                modifier = Modifier.clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
+            if (categories.isEmpty()){
+                HomeText(text = "Loading...", textAlign = TextAlign.Center)
+            } else {
+                LazyRow(
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        onCategoriesClick()
+                    }
                 ) {
-                    onCategoriesClick()
-                }
-            ) {
-                items(categories){
-                    category -> CategoryHolder(category = category)
+                    items(categories){
+                        category -> CategoryHolder(category = category)
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))

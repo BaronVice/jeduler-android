@@ -1,8 +1,5 @@
 package com.example.bookstoreapp.home.search
 
-import android.util.Log
-import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,37 +11,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Text
-import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.bookstoreapp.AppUtils.dateNow
 import com.example.bookstoreapp.AppUtils.defaultDate
-import com.example.bookstoreapp.AppUtils.defaultTime
-import com.example.bookstoreapp.AppUtils.getDateFromTask
-import com.example.bookstoreapp.AppUtils.getTimeFromTask
-import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.AppUtils.timeNow
 import com.example.bookstoreapp.RequestsUtils.buildSearchRequest
 import com.example.bookstoreapp.data.Category
@@ -56,25 +38,28 @@ import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.fragments.HomeText
 import com.example.bookstoreapp.home.fragments.HomeTextField
 import com.example.bookstoreapp.home.tasks.taskview.CategoryList
-import com.example.bookstoreapp.home.tasks.taskview.DatePickerModal
 import com.example.bookstoreapp.home.tasks.taskview.PriorityButton
-import com.example.bookstoreapp.home.tasks.taskview.TimePicker
 import com.example.bookstoreapp.home.tasks.taskview.updateBorderColors
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import com.example.bookstoreapp.ui.theme.HighPriority
 import com.example.bookstoreapp.ui.theme.LowPriority
 import com.example.bookstoreapp.ui.theme.MediumPriority
-import com.example.bookstoreapp.ui.theme.PriorityChosenBorderColor
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun SearchScreen(
-    categoryList: CategoryList,
+    api: ApiViewModel,
     onSearch: (String) -> Unit
 ){
     val context = LocalContext.current
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
     val dateFormater = remember { SimpleDateFormat("dd.MM.yyyy", Locale.UK) }
+
+    val categories by api.categories.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        api.fetchCategories()
+    }
 
     val task by remember {
         mutableStateOf(
@@ -105,7 +90,7 @@ fun SearchScreen(
             ) }
 
             val chosen = remember { mutableStateListOf<Category>() }
-            val available = remember { categoryList.categories.toMutableStateList() }
+            val available = remember { categories.toMutableStateList() }
 
             val taskDone = remember { mutableStateOf("No") }
             val sortBy = remember { mutableStateOf("Start date") }

@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
@@ -13,7 +14,8 @@ import androidx.compose.ui.unit.sp
 fun HomeText(
     text: String,
     modifier: Modifier = Modifier,
-    size: TextUnit = 25.sp
+    size: TextUnit = 25.sp,
+    textAlign: TextAlign? = null
 ){
     Text(
         text,
@@ -21,6 +23,7 @@ fun HomeText(
         fontSize = size,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Light,
+        textAlign = textAlign,
         modifier = modifier
     )
 }

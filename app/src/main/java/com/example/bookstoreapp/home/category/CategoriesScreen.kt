@@ -20,6 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,15 +48,21 @@ import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
 fun CategoriesScreen(
-    categories: SnapshotStateList<Category>,
+    api: ApiViewModel,
     navController: NavHostController,
     onPopBack: () -> Unit
 ){
+    val categories by api.categories.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        api.fetchCategories()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,17 +91,18 @@ fun CategoriesScreen(
                 Column {
                     HomeButton(text = "Add category") {
                         if (categories.size < 16){
-                            categories.add(
-                                // request on add to get id
-                                Category(
-                                    Random.nextInt(100, 10000).toShort(), // TODO: replace with id from request
-                                    getRandomCategoryName(categories),
-                                    getRandomHex()
-                                )
-                            )
-                            corroutineScope.launch {
-                                lazyColumnListState.scrollToItem(categories.size-1)
-                            }
+                            // todo
+//                            categories.add(
+//                                // request on add to get id
+//                                Category(
+//                                    Random.nextInt(100, 10000).toShort(), // TODO: replace with id from request
+//                                    getRandomCategoryName(categories),
+//                                    getRandomHex()
+//                                )
+//                            )
+//                            corroutineScope.launch {
+//                                lazyColumnListState.scrollToItem(categories.size-1)
+//                            }
                         } else {
                             showToast(
                                 context,
@@ -112,7 +122,8 @@ fun CategoriesScreen(
 fun CategoryHolderEdit(
     // TODO: category name and color should be signed as mutable?
     navController: NavHostController,
-    categories: SnapshotStateList<Category>,
+    categories: List<Category>,
+//    categories: SnapshotStateList<Category>, // todo: probably create a copy as snapshotStateList?
     category: Category
 ){
     Row{
@@ -176,7 +187,7 @@ fun CategoryHolderEdit(
                     .onFocusChanged { focusState ->
                         if (!focusState.isFocused) {
                             if (name.value == "") {
-                                categories.removeIf { c -> c.id == category.id }
+//                                categories.removeIf { c -> c.id == category.id } todo: delete request
                             } else if (isCategoryNameUnique(name.value, categories)) {
                                 if (!isCategoryNameUnique(name.value.trim(), categories))
                                     showToast(context, "Sure. I'm not a policeman to stop you.")
@@ -200,7 +211,7 @@ fun CategoryHolderEdit(
                         RoundedCornerShape(8.dp)
                     )
                     .clickable {
-                        if (category.name != ""){
+                        if (category.name != "") {
                             focusManager.clearFocus()
 
                             navController.navigate(

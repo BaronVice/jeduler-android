@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.home.fragments.HomeButton
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
@@ -27,10 +31,15 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Composable
 fun ColorPickerScreen(
-    categories: SnapshotStateList<Category>,
+    api: ApiViewModel,
     index: Int,
     onColorPicked: () -> Unit
 ) {
+    val categories by api.categories.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        api.fetchCategories()
+    }
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
         val controller = rememberColorPickerController()
         Column {

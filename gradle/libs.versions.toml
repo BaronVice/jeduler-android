@@ -3,6 +3,7 @@ accompanistSystemuicontrollerVersion = "0.27.0"
 agp = "8.5.2"
 coilCompose = "2.7.0"
 colorpickerComposeVersion = "1.1.2"
+converterGsonVersion = "2.9.0"
 hiltAndroid = "2.44"
 hiltAndroidCompiler = "2.44"
 kotlin = "2.0.0"
@@ -10,6 +11,7 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxCoroutinesAndroidVersion = "1.8.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.09.02"
@@ -17,6 +19,8 @@ gmsVersion = "4.4.2"
 bomVersion = "33.3.0"
 navigationCompose = "2.8.1"
 playServicesAuthVersion = "21.2.0"
+retrofitVersion = "2.9.0"
+runtimeLivedataVersion = "1.7.3"
 serializationVersion = "2.0.20"
 kotlinxSerializationJson = "1.7.1"
 
@@ -27,8 +31,10 @@ androidx-navigation-dynamic-features-fragment = { module = "androidx.navigation:
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationCompose" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationCompose" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationCompose" }
+androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeLivedataVersion" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 colorpicker-compose = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpickerComposeVersion" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGsonVersion" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "bomVersion" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
@@ -51,8 +57,10 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroidVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
 
 
 [plugins]

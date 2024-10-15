@@ -43,12 +43,14 @@ import com.example.bookstoreapp.graphs.HomeNavGraph
 import com.example.bookstoreapp.home.NavItemState
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.storage.ktx.storage
 
 
 @Composable
 fun HomeScreen(
+    api: ApiViewModel,
     googleAuthUiClient: GoogleAuthUiClient,
     lifecycleScope: LifecycleCoroutineScope,
     rootNavController: NavHostController
@@ -64,6 +66,7 @@ fun HomeScreen(
         innerPadding -> HomeNavGraph(
             rootNavController = rootNavController,
             navController = navController,
+            api,
             googleAuthUiClient,
             lifecycleScope,
             bottomBarState,

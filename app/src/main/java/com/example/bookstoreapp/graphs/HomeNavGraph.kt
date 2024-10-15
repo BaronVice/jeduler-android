@@ -33,6 +33,7 @@ import com.example.bookstoreapp.home.tasks.taskview.TaskView
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewAdd
 import com.example.bookstoreapp.home.tasks.taskview.TaskViewScreen
 import com.example.bookstoreapp.login.google.GoogleAuthUiClient
+import com.example.bookstoreapp.retrofit.ApiViewModel
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -40,20 +41,23 @@ import kotlin.random.Random
 fun HomeNavGraph(
     rootNavController: NavHostController,
     navController: NavHostController,
+    api: ApiViewModel,
     googleAuthUiClient: GoogleAuthUiClient,
     lifecycleScope: LifecycleCoroutineScope,
     bottomBarState: MutableState<Boolean>,
     floatingBottomState: MutableState<Boolean>,
 ){
-    val categories = remember {
-        mutableStateListOf(
-            Category(1, "Sweet", "#960018"),
-            Category(2, "Dreams", "#405919"),
-            Category(3, "Are", "#468499"),
-            Category(4, "Made of", "#c77765"),
-            Category(5, "This", "#ff80b0"),
-        )
-    }
+//    val categories = remember {
+//        mutableStateListOf(
+//            Category(1, "Sweet", "#960018"),
+//            Category(2, "Dreams", "#405919"),
+//            Category(3, "Are", "#468499"),
+//            Category(4, "Made of", "#c77765"),
+//            Category(5, "This", "#ff80b0"),
+//        )
+//    }
+
+
     val tasks = remember { getTasks("").toMutableStateList() }
 
     NavHost(
@@ -62,7 +66,7 @@ fun HomeNavGraph(
     ) {
         composable<Tasks>{
             TasksScreen(
-                categories,
+                api,
                 tasks,
                 onTaskClick = {
                     id -> navController.navigate(
@@ -81,7 +85,7 @@ fun HomeNavGraph(
 
         composable<Search>{
             SearchScreen(
-                categoryList = CategoryList(categories.toList())
+                api
             ){
                 s -> navController.navigate(SearchResult(s))
             }
@@ -129,7 +133,10 @@ fun HomeNavGraph(
         }
 
         composable<Categories>{
-            CategoriesScreen(categories, navController){
+            CategoriesScreen(
+                api,
+                navController
+            ){
                 navController.popBackStack()
                 navController.navigate(Tasks)
             }
@@ -141,7 +148,7 @@ fun HomeNavGraph(
             backStackEntry ->
             val colorPicker: ColorPicker = backStackEntry.toRoute()
             ColorPickerScreen(
-                categories,
+                api,
                 colorPicker.id
             ) {
                 navController.popBackStack()
@@ -154,7 +161,7 @@ fun HomeNavGraph(
             val taskView: TaskView = backStackEntry.toRoute()
 
             TaskViewScreen(
-                data = CategoryList( categories.toList() ),
+                api,
                 originalTask = tasks[taskView.id],
                 // TODO: also compare if anything has changed
                 firstButtonText = "Save",
@@ -186,7 +193,7 @@ fun HomeNavGraph(
 
         composable<TaskViewAdd> {
             TaskViewScreen(
-                data = CategoryList( categories.toList() ),
+                api,
                 originalTask = Task(
                     null,
                     "",
