@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.tasks.taskview.subtasksview
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -198,6 +199,7 @@ private fun SubtaskCard(
     onDelete: (Short) -> Boolean,
     onCheckBoxClick: (Boolean) -> Unit
 ) {
+    Log.d("SubtaskCompleted", subtask.isCompleted.toString())
     var isCompleted by remember { mutableStateOf(subtask.isCompleted) }
 
     var name by remember { mutableStateOf(subtask.name) }

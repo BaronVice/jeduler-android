@@ -11,10 +11,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.bookstoreapp.RequestsUtils.getTasks
-import com.example.bookstoreapp.data.Category
-import com.example.bookstoreapp.data.Subtask
-import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.account.Account
 import com.example.bookstoreapp.home.account.AccountScreen
 import com.example.bookstoreapp.home.category.Categories
@@ -57,9 +53,6 @@ fun HomeNavGraph(
 //        )
 //    }
 
-
-    val tasks = remember { getTasks("").toMutableStateList() }
-
     NavHost(
         navController = navController,
         startDestination = Tasks
@@ -67,10 +60,9 @@ fun HomeNavGraph(
         composable<Tasks>{
             TasksScreen(
                 api,
-                tasks,
                 onTaskClick = {
                     id -> navController.navigate(
-                        TaskView(tasks.indexOfFirst { t -> t.id == id }, "")
+                        TaskView(id, "")
                     )
                 },
                 onCategoriesClick = {
@@ -101,7 +93,7 @@ fun HomeNavGraph(
                 url = searchResult.url,
                 onTaskClick = {
                     id -> navController.navigate(
-                        TaskView(tasks.indexOfFirst { t -> t.id == id }, searchResult.url)
+                        TaskView(id, searchResult.url)
                     )
                 },
                 onNavBack = {
@@ -146,11 +138,20 @@ fun HomeNavGraph(
 
         composable<ColorPicker> {
             backStackEntry ->
-            val colorPicker: ColorPicker = backStackEntry.toRoute()
+            val taskView: ColorPicker = backStackEntry.toRoute()
             ColorPickerScreen(
                 api,
-                colorPicker.id
+                taskView.id
             ) {
+                category ->
+                val originalCategory = api.categories.value!![taskView.id]
+                if (category != originalCategory){
+                    originalCategory.name = category.name
+                    originalCategory.color = category.color
+                }
+
+                api.updateCategory(originalCategory)
+
                 navController.popBackStack()
                 navController.navigate(Categories)
             }
@@ -162,12 +163,11 @@ fun HomeNavGraph(
 
             TaskViewScreen(
                 api,
-                originalTask = tasks[taskView.id],
-                // TODO: also compare if anything has changed
+                taskId = taskView.id,
                 firstButtonText = "Save",
                 firstButtonAction = {
                     task ->
-                    val originalTask = tasks[taskView.id]
+                    val originalTask = api.tasks.value!!.find { t -> t.id!! == taskView.id }!!
                     if (task != originalTask){
                         originalTask.name = task.name
                         originalTask.description = task.description
@@ -178,6 +178,8 @@ fun HomeNavGraph(
                         originalTask.startsAt = task.startsAt
                         originalTask.notifyAt = task.notifyAt
                     }
+
+                    api.updateTask(originalTask)
                 }
             ) {
                 navController.popBackStack()
@@ -194,22 +196,11 @@ fun HomeNavGraph(
         composable<TaskViewAdd> {
             TaskViewScreen(
                 api,
-                originalTask = Task(
-                    null,
-                    "",
-                    "",
-                    false,
-                    2,
-                    mutableListOf(),
-                    listOf(),
-                    "",
-                    ""
-                ),
+                -1,
                 firstButtonText = "Add and to tasks",
                 firstButtonAction = {
                     task -> // request on add
-                    task.id = tasks.size+1
-                    tasks.add(task)
+                    api.createTask(task)
                     navController.popBackStack()
                     navController.navigate(Tasks)
                 }

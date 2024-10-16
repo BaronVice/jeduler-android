@@ -81,7 +81,7 @@ fun CategoriesScreen(
                     state = lazyColumnListState
                 ) {
                     items(categories, key = {c -> c.id}){
-                        category -> CategoryHolderEdit(navController, categories, category)
+                        category -> CategoryHolderEdit(api, navController, categories, category)
                     }
                 }
             }
@@ -92,17 +92,17 @@ fun CategoriesScreen(
                     HomeButton(text = "Add category") {
                         if (categories.size < 16){
                             // todo
-//                            categories.add(
-//                                // request on add to get id
-//                                Category(
-//                                    Random.nextInt(100, 10000).toShort(), // TODO: replace with id from request
-//                                    getRandomCategoryName(categories),
-//                                    getRandomHex()
-//                                )
-//                            )
-//                            corroutineScope.launch {
-//                                lazyColumnListState.scrollToItem(categories.size-1)
-//                            }
+                            api.createCategory(
+                                Category(
+                                    -1,
+                                    getRandomCategoryName(categories),
+                                    getRandomHex()
+                                )
+                            )
+                            api.fetchCategories()
+                            corroutineScope.launch {
+                                lazyColumnListState.scrollToItem(categories.size-1)
+                            }
                         } else {
                             showToast(
                                 context,
@@ -121,9 +121,9 @@ fun CategoriesScreen(
 @Composable
 fun CategoryHolderEdit(
     // TODO: category name and color should be signed as mutable?
+    api: ApiViewModel,
     navController: NavHostController,
     categories: List<Category>,
-//    categories: SnapshotStateList<Category>, // todo: probably create a copy as snapshotStateList?
     category: Category
 ){
     Row{
@@ -187,11 +187,12 @@ fun CategoryHolderEdit(
                     .onFocusChanged { focusState ->
                         if (!focusState.isFocused) {
                             if (name.value == "") {
-//                                categories.removeIf { c -> c.id == category.id } todo: delete request
+                                api.deleteCategory(category.id)
                             } else if (isCategoryNameUnique(name.value, categories)) {
                                 if (!isCategoryNameUnique(name.value.trim(), categories))
                                     showToast(context, "Sure. I'm not a policeman to stop you.")
                                 category.name = name.value
+                                api.updateCategory(category)
                             } else if (name.value != category.name) {
                                 name.value = category.name
                                 showToast(context, "Nope, already exists")

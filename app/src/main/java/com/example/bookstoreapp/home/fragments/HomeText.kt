@@ -15,11 +15,12 @@ fun HomeText(
     text: String,
     modifier: Modifier = Modifier,
     size: TextUnit = 25.sp,
-    textAlign: TextAlign? = null
+    textAlign: TextAlign? = null,
+    color: Color = Color.Black
 ){
     Text(
         text,
-        color = Color.Black,
+        color = color,
         fontSize = size,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Light,

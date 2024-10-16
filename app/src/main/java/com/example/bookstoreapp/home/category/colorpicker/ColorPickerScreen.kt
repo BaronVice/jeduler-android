@@ -33,7 +33,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 fun ColorPickerScreen(
     api: ApiViewModel,
     index: Int,
-    onColorPicked: () -> Unit
+    onColorPicked: (Category) -> Unit
 ) {
     val categories by api.categories.observeAsState(emptyList())
     LaunchedEffect(Unit) {
@@ -78,7 +78,7 @@ fun ColorPickerScreen(
             Spacer(modifier = Modifier.height(50.dp))
 
             HomeButton(text = "Pick color") {
-                onColorPicked()
+                onColorPicked(categories[index])
             }
         }
     }

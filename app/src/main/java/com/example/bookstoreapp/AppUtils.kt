@@ -42,7 +42,7 @@ object AppUtils {
         val currentTime = Calendar.getInstance()
         currentTime.isLenient = false
         return currentTime
-    }
+    } // bruh, how I didn't see that...
     fun dateNow(): Calendar {
         val currentTime = Calendar.getInstance()
         currentTime.isLenient = false
@@ -64,11 +64,11 @@ object AppUtils {
         return currentTime
     }
 
-    fun getTimeFromTask(date: String) = date.split("+")[1]
-    fun getDateFromTask(date: String) = date.split("+")[0]
+    fun getTimeFromTask(date: String) = date.split("-")[1]
+    fun getDateFromTask(date: String) = date.split("-")[0]
 
     fun parseTaskDate(date: String, delimiter: String = "   "): String{
-        val parsed = date.split("+")
+        val parsed = date.split("-")
         return parsed[1] + delimiter + parsed[0]
     }
 

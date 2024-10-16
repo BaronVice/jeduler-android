@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookstoreapp.RequestsUtils.getTasks
+import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
 import com.example.bookstoreapp.home.fragments.TaskCard
@@ -41,12 +41,13 @@ import com.example.bookstoreapp.home.tasks.taskview.TaskView
 
 @Composable
 fun SearchResultScreen(
+    // todo: api + map of options
     url: String,
     onNavBack: () -> Unit,
     onTaskClick: (Int) -> Unit
 ){
     val tasks = remember {
-        getTasks(url).toMutableStateList()
+        /*getTasks(url)*/emptyList<Task>().toMutableStateList()
     }
 
     Log.d("APP_REQUESTS", url)
@@ -63,7 +64,7 @@ fun SearchResultScreen(
                 }
                 a += 1
                 Log.d("APP_REQUESTS", "Send request")
-                tasks.addAll(getTasks(url))
+//                tasks.addAll(getTasks(url))
             }
         }
 

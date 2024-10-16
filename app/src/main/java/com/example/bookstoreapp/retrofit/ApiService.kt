@@ -64,7 +64,7 @@ interface ApiService {
     @Headers("ngrok-skip-browser-warning: 69420")
     @DELETE("categories/{id}")
     suspend fun deleteCategory(
-        @Path("id") id: Int,
+        @Path("id") id: Short,
         @Header("Token") idToken: String
     )
 }

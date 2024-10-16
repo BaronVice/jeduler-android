@@ -32,26 +32,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookstoreapp.AppUtils.dateNow
 import com.example.bookstoreapp.AppUtils.getContrastColor
 import com.example.bookstoreapp.AppUtils.hexToColor
-import com.example.bookstoreapp.RequestsUtils.getTasks
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
 import com.example.bookstoreapp.home.fragments.HomeText
 import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
 import com.example.bookstoreapp.home.fragments.TaskCard
 import com.example.bookstoreapp.retrofit.ApiViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun TasksScreen(
     api: ApiViewModel,
-    tasks: SnapshotStateList<Task>,
     onTaskClick: (Int) -> Unit,
     onCategoriesClick: () -> Unit
 ) {
     val categories by api.categories.observeAsState(emptyList())
+    val tasks by api.tasks.observeAsState(emptyList())
+    val timeFormatter = remember { SimpleDateFormat("dd.MM.yyyy-HH:mm", Locale.UK) }
+
+
     LaunchedEffect(Unit) {
         api.fetchCategories()
+        api.fetchTasks(
+            mapOf(
+                Pair("from", timeFormatter.format(dateNow().time)),
+                Pair("order", "starts")
+            )
+        )
     }
 
     Box(
@@ -60,15 +71,29 @@ fun TasksScreen(
             .padding(horizontal = 4.dp, vertical = 20.dp),
     ) {
         LaunchedEffect(key1 = tasks.size) {
-            if (tasks.size == 0){
-                Log.d("APP_REQUESTS", "Send request")
-                tasks.addAll(getTasks("").toMutableStateList())
+            if (tasks.isEmpty()){
+//                Log.d("APP_REQUESTS", "Send request")
+//                tasks.addAll(getTasks("").toMutableStateList())
+                api.fetchTasks(
+                    mapOf(
+                        Pair("from", timeFormatter.format(dateNow().time)),
+                        Pair("order", "starts")
+                    )
+                )
             }
         }
 
         Column {
             if (categories.isEmpty()){
-                HomeText(text = "Loading...", textAlign = TextAlign.Center)
+                HomeText(
+                    text = "Loading...",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .padding(20.dp),
+                    size = 20.sp,
+                )
             } else {
                 LazyRow(
                     modifier = Modifier.clickable(
@@ -98,28 +123,35 @@ fun TasksScreen(
                         horizontal = 4.dp
                     )
             )
-            LazyColumn(
-                modifier = Modifier
-                    .padding(0.dp, 0.dp, 0.dp, 65.dp)
-            ) {
-                // TODO: still buggy at list update, have to replace with key in items
-                items(tasks){
-                    task ->
-                    val movableContent = movableContentOf {
+            if (tasks.isEmpty()){
+                HomeText(
+                    text = "Loading...",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .padding(20.dp),
+                    size = 20.sp,
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 0.dp, 65.dp)
+                ) {
+                    items(tasks, key = {t -> t.id!!}) { task ->
                         SwipeToDeleteContainer(
                             item = task,
                             onDelete = {
-                                tasks.remove(task)
+                                api.deleteTask(task.id!!)
+//                                tasks.remove(task)
                             }
-                        ) {
-                                t ->
+                        ) { t ->
+                            Log.d("TaskTime", t.startsAt)
                             TaskCard(task = t) {
                                 onTaskClick(t.id!!)
                             }
                         }
                     }
-
-                    movableContent()
                 }
             }
         }
@@ -140,15 +172,13 @@ fun CategoryHolder(
             shape = RoundedCornerShape(8.dp),
             color = Color(hexToColor(category.color))
         ){
-            Text(
+            HomeText(
                 text = category.name,
                 color = getContrastColor(category.color),
                 modifier = Modifier
                     .padding(10.dp)
                     .padding(20.dp),
-                fontSize = 20.sp,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Medium,
+                size = 20.sp,
             )
         }
     }

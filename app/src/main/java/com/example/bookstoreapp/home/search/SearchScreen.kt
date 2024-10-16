@@ -57,9 +57,6 @@ fun SearchScreen(
     val dateFormater = remember { SimpleDateFormat("dd.MM.yyyy", Locale.UK) }
 
     val categories by api.categories.observeAsState(emptyList())
-    LaunchedEffect(Unit) {
-        api.fetchCategories()
-    }
 
     val task by remember {
         mutableStateOf(

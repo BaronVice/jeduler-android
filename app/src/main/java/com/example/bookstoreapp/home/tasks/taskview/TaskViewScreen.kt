@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.home.tasks.taskview
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -66,7 +67,7 @@ import java.util.Locale
 @Composable
 fun TaskViewScreen(
     api: ApiViewModel,
-    originalTask: Task,
+    taskId: Int,
     firstButtonText: String,
     firstButtonAction: (Task) -> Unit,
     navBack: () -> Unit
@@ -74,7 +75,24 @@ fun TaskViewScreen(
     val context = LocalContext.current
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.UK) }
     val dateFormater = remember { SimpleDateFormat("dd.MM.yyyy", Locale.UK) }
-    val task by remember { mutableStateOf(originalTask.copy()) }
+    val task by remember { mutableStateOf(
+        api.tasks.value!!.find { t -> t.id == taskId }?.copy()?:Task(
+            null,
+        "",
+        "",
+        false,
+        2,
+        mutableListOf(),
+        listOf(),
+        "",
+        ""
+        )
+    ) }
+
+    Log.d("Subtasks size", "${task.id} ${task.subtasks.size}")
+    for(subtask in task.subtasks){
+        Log.d("IsCompletedFromTask", subtask.isCompleted.toString())
+    }
 
     val categories by api.categories.observeAsState(emptyList())
     LaunchedEffect(Unit) {
@@ -88,6 +106,7 @@ fun TaskViewScreen(
         contentAlignment = Alignment.Center
     ){
         Column{
+            Log.d("TaskTime", task.startsAt)
             val cardTime = remember { mutableStateOf(
                 if (task.startsAt != "") getTimeFromTask(task.startsAt)
                 else timeFormatter.format(defaultTime().time)
@@ -275,7 +294,7 @@ fun TaskViewScreen(
                         showToast(context, "Task name cannot be empty")
                         return@HomeButton
                     } else {
-                        task.startsAt = "${cardDate.value}+${cardTime.value}"
+                        task.startsAt = "${cardDate.value}-${cardTime.value}"
                         task.subtasks = subtasks.toList()
                         task.categoryIds = chosen.map { c -> c.id }.toList()
 

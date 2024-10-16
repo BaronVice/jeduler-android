@@ -1,5 +1,6 @@
 package com.example.bookstoreapp.retrofit
 
+import android.util.Log
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
 import retrofit2.http.Body
@@ -19,6 +20,7 @@ class ApiRepository {
         options: Map<String, String>,
         idToken: String
     ): List<Task> {
+        for(option in options) Log.d("Option", option.key + " " + option.value)
         return apiService.getTasks(options, idToken)
     }
     
@@ -67,6 +69,6 @@ class ApiRepository {
         id: Short,
         idToken: String
     ) {
-        return apiService.deleteTask(id.toInt(), idToken)
+        return apiService.deleteCategory(id, idToken)
     }
 }
