@@ -90,7 +90,7 @@ fun HomeNavGraph(
             val searchResult: SearchResult = backStackEntry.toRoute()
 
             SearchResultScreen(
-                url = searchResult.url,
+                api,
                 onTaskClick = {
                     id -> navController.navigate(
                         TaskView(id, searchResult.url)
@@ -139,12 +139,13 @@ fun HomeNavGraph(
         composable<ColorPicker> {
             backStackEntry ->
             val taskView: ColorPicker = backStackEntry.toRoute()
+            val id = taskView.id.toShort()
             ColorPickerScreen(
                 api,
-                taskView.id
+                id
             ) {
                 category ->
-                val originalCategory = api.categories.value!![taskView.id]
+                val originalCategory = api.categories.value!!.find { c -> c.id == id }!!
                 if (category != originalCategory){
                     originalCategory.name = category.name
                     originalCategory.color = category.color

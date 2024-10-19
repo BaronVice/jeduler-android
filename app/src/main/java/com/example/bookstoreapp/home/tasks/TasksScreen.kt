@@ -52,18 +52,26 @@ fun TasksScreen(
 ) {
     val categories by api.categories.observeAsState(emptyList())
     val tasks by api.tasks.observeAsState(emptyList())
-    val timeFormatter = remember { SimpleDateFormat("dd.MM.yyyy-HH:mm", Locale.UK) }
 
+    val timeFormatter = remember { SimpleDateFormat("dd.MM.yyyy-HH:mm", Locale.UK) }
+    api.changeOptions(
+        mutableMapOf(
+            Pair("from", timeFormatter.format(dateNow().time)),
+            Pair("order", "starts")
+        )
+    )
 
     LaunchedEffect(Unit) {
         api.fetchCategories()
-        api.fetchTasks(
-            mapOf(
-                Pair("from", timeFormatter.format(dateNow().time)),
-                Pair("order", "starts")
-            )
-        )
+        api.fetchTasks()
     }
+
+    val tasksSnapshotStateList = remember { tasks.toMutableStateList() }
+    LaunchedEffect(tasks) {
+        tasksSnapshotStateList.clear()
+        tasksSnapshotStateList.addAll(tasks)
+    }
+
 
     Box(
         modifier = Modifier
@@ -72,23 +80,22 @@ fun TasksScreen(
     ) {
         LaunchedEffect(key1 = tasks.size) {
             if (tasks.isEmpty()){
-//                Log.d("APP_REQUESTS", "Send request")
-//                tasks.addAll(getTasks("").toMutableStateList())
-                api.fetchTasks(
-                    mapOf(
-                        Pair("from", timeFormatter.format(dateNow().time)),
-                        Pair("order", "starts")
-                    )
-                )
+                api.fetchTasks()
             }
         }
 
         Column {
             if (categories.isEmpty()){
                 HomeText(
-                    text = "Loading...",
+                    text = "Click here to add categories",
                     textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            onCategoriesClick()
+                        }
                         .fillMaxWidth()
                         .padding(10.dp)
                         .padding(20.dp),
@@ -138,12 +145,12 @@ fun TasksScreen(
                     modifier = Modifier
                         .padding(0.dp, 0.dp, 0.dp, 65.dp)
                 ) {
-                    items(tasks, key = {t -> t.id!!}) { task ->
+                    items(tasksSnapshotStateList, key = {t -> t.id!!}) { task ->
                         SwipeToDeleteContainer(
                             item = task,
                             onDelete = {
                                 api.deleteTask(task.id!!)
-//                                tasks.remove(task)
+                                tasksSnapshotStateList.removeIf { t -> t.id == task.id }
                             }
                         ) { t ->
                             Log.d("TaskTime", t.startsAt)

@@ -2,6 +2,7 @@ package com.example.bookstoreapp.retrofit
 
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.data.Task
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -22,14 +23,14 @@ interface ApiService {
 
     @Headers("ngrok-skip-browser-warning: 69420")
     @POST("tasks")
-    suspend fun createTask(
+    suspend fun createTask( // todo: remove suspend add call
         @Body task: Task,
         @Header("Token") idToken: String
     ): Int
 
     @Headers("ngrok-skip-browser-warning: 69420")
     @PATCH("tasks")
-    suspend fun updateTask(
+    suspend fun updateTask( // todo: remove suspend add call
         @Body task: Task,
         @Header("Token") idToken: String
     )
@@ -49,10 +50,10 @@ interface ApiService {
 
     @Headers("ngrok-skip-browser-warning: 69420")
     @POST("categories")
-    suspend fun createCategory(
+    fun createCategory(
         @Body category: Category,
         @Header("Token") idToken: String
-    ): Int
+    ): Call<Short>
 
     @Headers("ngrok-skip-browser-warning: 69420")
     @PATCH("categories")

@@ -21,7 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -38,35 +41,32 @@ import com.example.bookstoreapp.home.fragments.SwipeToDeleteContainer
 import com.example.bookstoreapp.home.fragments.TaskCard
 import com.example.bookstoreapp.home.tasks.CategoryHolder
 import com.example.bookstoreapp.home.tasks.taskview.TaskView
+import com.example.bookstoreapp.retrofit.ApiViewModel
 
 @Composable
 fun SearchResultScreen(
-    // todo: api + map of options
-    url: String,
+    api: ApiViewModel,
     onNavBack: () -> Unit,
     onTaskClick: (Int) -> Unit
 ){
-    val tasks = remember {
-        /*getTasks(url)*/emptyList<Task>().toMutableStateList()
+    val tasks by api.tasks.observeAsState(emptyList())
+    LaunchedEffect(key1 = tasks.size) {
+        if (tasks.isEmpty()){
+            api.fetchTasks()
+        }
     }
 
-    Log.d("APP_REQUESTS", url)
+    val tasksSnapshotStateList = remember { tasks.toMutableStateList() }
+    LaunchedEffect(tasks) {
+        tasksSnapshotStateList.clear()
+        tasksSnapshotStateList.addAll(tasks)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 4.dp, vertical = 20.dp),
     ) {
-        LaunchedEffect(key1 = tasks.size) {
-            if (tasks.size == 0){
-                var a = 0
-                for (i in 1..100000000) {
-                    a += i
-                }
-                a += 1
-                Log.d("APP_REQUESTS", "Send request")
-//                tasks.addAll(getTasks(url))
-            }
-        }
 
         Column {
             LazyColumn(
@@ -74,23 +74,19 @@ fun SearchResultScreen(
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
                     .weight(0.8f)
             ) {
-                items(tasks){
+                items(tasksSnapshotStateList, key = {t -> t.id!!}){
                     task ->
-                    // TODO: still buggy, have to replace with key in items
-                    val movableContent = movableContentOf {
-                        SwipeToDeleteContainer(
-                            item = task,
-                            onDelete = {
-                                tasks.remove(task)
-                            }
-                        ) {
-                            t -> TaskCard(task = t) {
-                                onTaskClick(t.id!!)
-                            }
+                    SwipeToDeleteContainer(
+                        item = task,
+                        onDelete = {
+                            api.deleteTask(task.id!!)
+                            tasksSnapshotStateList.removeIf { t -> t.id == task.id }
+                        }
+                    ) {
+                        t -> TaskCard(task = t) {
+                            onTaskClick(t.id!!)
                         }
                     }
-
-                    movableContent()
                 }
             }
             Row(
@@ -100,14 +96,18 @@ fun SearchResultScreen(
             ){
                 // TODO: disable if page 0
                 HomeButton(text = "<", fillMaxWidth = false) {
-                    // prev page
+                    api.previousPage()
+                    api.fetchTasks()
                 }
                 HomeButton(text = "Reset", fillMaxWidth = false) {
                     onNavBack()
                 }
                 // TODO: I can ask 11 tasks but show 10, if less than 11 received -> disable
                 HomeButton(text = ">", fillMaxWidth = false) {
-                    // next page
+                    if (tasks.isEmpty()) return@HomeButton
+
+                    api.nextPage()
+                    api.fetchTasks()
                 }
             }
         }

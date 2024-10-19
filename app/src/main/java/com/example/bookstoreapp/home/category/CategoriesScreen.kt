@@ -23,10 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -44,13 +46,13 @@ import com.example.bookstoreapp.AppUtils.getRandomCategoryName
 import com.example.bookstoreapp.AppUtils.getRandomHex
 import com.example.bookstoreapp.AppUtils.hexToColor
 import com.example.bookstoreapp.AppUtils.isCategoryNameUnique
+import com.example.bookstoreapp.AppUtils.pickTempId
 import com.example.bookstoreapp.AppUtils.showToast
 import com.example.bookstoreapp.data.Category
 import com.example.bookstoreapp.home.fragments.HomeButton
 import com.example.bookstoreapp.home.category.colorpicker.ColorPicker
 import com.example.bookstoreapp.retrofit.ApiViewModel
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @Composable
 fun CategoriesScreen(
@@ -58,10 +60,12 @@ fun CategoriesScreen(
     navController: NavHostController,
     onPopBack: () -> Unit
 ){
-    val categories by api.categories.observeAsState(emptyList())
+    val observed by api.categories.observeAsState(emptyList())
     LaunchedEffect(Unit) {
         api.fetchCategories()
     }
+
+    val categories = remember { observed.toMutableStateList() }
 
     Box(
         modifier = Modifier
@@ -80,8 +84,22 @@ fun CategoriesScreen(
                 LazyColumn(
                     state = lazyColumnListState
                 ) {
-                    items(categories, key = {c -> c.id}){
-                        category -> CategoryHolderEdit(api, navController, categories, category)
+                    items(categories){
+                        category ->
+                        Log.d("Recomposed", "${category.id} ${category.name}")
+                        val movableContent = movableContentOf {
+                            CategoryHolderEdit(
+                                api,
+                                CategoriesHolder(categories),
+                                category,
+                                category.id >= 0
+                            ){
+                                navController.navigate(
+                                    ColorPicker(category.id.toInt())
+                                )
+                            }
+                        }
+                        movableContent()
                     }
                 }
             }
@@ -91,15 +109,14 @@ fun CategoriesScreen(
                 Column {
                     HomeButton(text = "Add category") {
                         if (categories.size < 16){
-                            // todo
-                            api.createCategory(
-                                Category(
-                                    -1,
-                                    getRandomCategoryName(categories),
-                                    getRandomHex()
-                                )
+                            val c = Category(
+                                pickTempId(categories),
+                                getRandomCategoryName(categories),
+                                getRandomHex()
                             )
-                            api.fetchCategories()
+                            api.createCategory(c, categories)
+                            categories.add(c)
+
                             corroutineScope.launch {
                                 lazyColumnListState.scrollToItem(categories.size-1)
                             }
@@ -122,9 +139,10 @@ fun CategoriesScreen(
 fun CategoryHolderEdit(
     // TODO: category name and color should be signed as mutable?
     api: ApiViewModel,
-    navController: NavHostController,
-    categories: List<Category>,
-    category: Category
+    categories: CategoriesHolder,
+    category: Category,
+    available: Boolean,
+    toColorPicker: () -> Unit
 ){
     Row{
         val mainColor = Color(hexToColor(category.color))
@@ -186,10 +204,12 @@ fun CategoryHolderEdit(
                     .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                     .onFocusChanged { focusState ->
                         if (!focusState.isFocused) {
+                            // here
                             if (name.value == "") {
                                 api.deleteCategory(category.id)
-                            } else if (isCategoryNameUnique(name.value, categories)) {
-                                if (!isCategoryNameUnique(name.value.trim(), categories))
+                                categories.categories.removeIf { c -> c.id == category.id}
+                            } else if (isCategoryNameUnique(name.value, categories.categories)) {
+                                if (!isCategoryNameUnique(name.value.trim(), categories.categories))
                                     showToast(context, "Sure. I'm not a policeman to stop you.")
                                 category.name = name.value
                                 api.updateCategory(category)
@@ -199,7 +219,8 @@ fun CategoryHolderEdit(
                             }
                         }
                     },
-                singleLine = true
+                singleLine = true,
+                readOnly = !available
             )
         }
         Box(modifier = Modifier.weight(0.25f), contentAlignment = Alignment.Center){
@@ -212,12 +233,11 @@ fun CategoryHolderEdit(
                         RoundedCornerShape(8.dp)
                     )
                     .clickable {
+                        if (!available) return@clickable
+
                         if (category.name != "") {
                             focusManager.clearFocus()
-
-                            navController.navigate(
-                                ColorPicker(categories.indexOfFirst { c -> c.id == category.id })
-                            )
+                            toColorPicker()
                         }
                     }
                     .padding(20.dp)

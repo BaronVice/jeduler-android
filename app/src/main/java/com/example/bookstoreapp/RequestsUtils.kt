@@ -1,5 +1,6 @@
 package com.example.bookstoreapp
 
+import android.util.Log
 import com.example.bookstoreapp.data.Subtask
 import com.example.bookstoreapp.data.Task
 import kotlin.random.Random
@@ -17,22 +18,26 @@ object RequestsUtils {
         to: String,
         isCompleted: String,
         sortBy: String
-    ): String {
-        var r = PREFIX + "tasks?size=20"
-        if (name != "") r += "&name=$name"
-        if (priority != 0.toShort()) r += "&priorities=$priority"
-        if (categoryIds.isNotEmpty()) r += "&categories=${categoryIds.joinToString(separator = ",") }"
-        r += "&from=$from"
-        r += "&to=$to"
-        // TODO: not implemented in api
-        // r += <isCompleted>
-        r += "&order=" + when(sortBy){
-            "Start date" -> "starts_at"
-            "Edit date" -> "last_changed"
+    ): MutableMap<String, String> {
+        val m = mutableMapOf<String, String>()
+        if (name != "") m["name"] = name
+        if (priority != 0.toShort()) m["priorities"] = priority.toString()
+        if (categoryIds.isNotEmpty()) m["categories"] = categoryIds.joinToString(separator = ",")
+        m["from"] = from
+        m["to"] = to
+        m["taskdone"] = isCompleted
+        m["order"] = when(sortBy){
+            "Start date" -> "starts"
+            "Edit date" -> "changed"
             "Name" -> "name"
             else -> "priority"
         }
+        m["page"] = "0"
 
-        return r
+        for (p in m){
+            Log.d("MapOption", p.key + " " + p.value)
+        }
+
+        return m
     }
 }

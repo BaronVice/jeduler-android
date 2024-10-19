@@ -109,4 +109,12 @@ object AppUtils {
     fun getRandomHex(): String {
         return "#${Random.nextInt(100000, 999999)}"
     }
+
+    fun pickTempId(categories: List<Category>): Short {
+        val ids = categories.map { c -> c.id }
+        for (i in -1 downTo -20){
+            if (i.toShort() !in ids) return i.toShort()
+        }
+        return -20
+    }
 }

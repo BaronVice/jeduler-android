@@ -91,7 +91,7 @@ fun SearchScreen(
 
             val taskDone = remember { mutableStateOf("No") }
             val sortBy = remember { mutableStateOf("Start date") }
-            // todo: no order in api sadly
+            // todo: no asc or desc in api sadly
             // val order = remember { mutableStateOf("") }
 
             val scope = rememberCoroutineScope()
@@ -203,16 +203,20 @@ fun SearchScreen(
                 // if (datesNotIntersecting)
 
                 task.categoryIds = chosen.map { c -> c.id }.toList()
-                val s = buildSearchRequest(
-                    name = task.name,
-                    priority = task.priority,
-                    categoryIds = task.categoryIds,
-                    from = "${cardDateStart.value}+${cardTimeStart.value}",
-                    to = "${cardDateEnd.value}+${cardTimeEnd.value}",
-                    isCompleted = taskDone.value,
-                    sortBy = sortBy.value
+                api.changeOptions(
+                    buildSearchRequest(
+                        name = task.name,
+                        priority = task.priority,
+                        categoryIds = task.categoryIds,
+                        from = "${cardDateStart.value}-${cardTimeStart.value}",
+                        to = "${cardDateEnd.value}-${cardTimeEnd.value}",
+                        isCompleted = taskDone.value,
+                        sortBy = sortBy.value
+                    )
                 )
-                onSearch(s)
+                api.fetchTasks()
+
+                onSearch("1")
             }
         }
     }
